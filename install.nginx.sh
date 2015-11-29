@@ -1,4 +1,36 @@
 #!/bin/bash
+#
+# Copyright (c) 2015 imm studios, z.s.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+##############################################################################
+## COMMON UTILS
+
+BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+TEMPDIR=/tmp/$(basename "${BASH_SOURCE[0]}")
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+function error_exit {
+    printf "\nInstallation failed\n"
+    cd $BASEDIR
+    exit 1
+}
+
+## COMMON UTILS
+##############################################################################
 
 NGINX_VERSION="1.9.7"
 ZLIB_VERSION="1.2.8"
@@ -6,54 +38,12 @@ PCRE_VERSION="8.37"
 OPENSSL_VERSION="1.0.2d"
 
 REPO_URL="http://repo.imm.cz"
+SRCDIR=$TEMPDIR
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
     "https://github.com/pagespeed/ngx_pagespeed"
 )
-
-#
-# Run as root only
-#
-
-if [ "$(id -u)" != "0" ]; then
-   echo "This script must be run as root" 1>&2
-   exit 1
-fi
-
-#
-# Working paths
-#
-
-if [ -z "$BASEDIR" ]; then
-    BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-fi
-
-SRCDIR=/tmp/nginx_src
-
-if [ -d "$SRCDIR" ]; then
-    rm -rf $SRCDIR
-fi
-
-if [ ! -d "$SRCDIR" ]; then
-    mkdir $SRCDIR
-fi
-
-#
-# Utilities
-#
-
-function error_exit {
-    echo ""
-    echo "Installation failed"
-    echo ""
-    cd $BASEDIR
-    exit 1
-}
-
-
-
-
 
 
 
@@ -176,34 +166,32 @@ function build_nginx {
 
 function post_install {
     echo "Running post-install configuration..."
+    
     HTMLDIR="/var/www/html"
-
-
-    cd $BASEDIR
-    cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
-    cp nginx/cache.conf /etc/nginx/cache.conf || return 1
-    cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
 
     if [ ! -d $HTMLDIR ]; then
         mkdir $HTMLDIR
     fi
 
+    cd $BASEDIR
+    cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
+    cp nginx/cache.conf /etc/nginx/cache.conf || return 1
+    cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
     cp nginx/index.html $HTMLDIR
-    
     
     return 0
 }
 
 function start_nginx {
+    echo "(re)starting NGINX service..."
     systemctl daemon-reload
     service nginx stop
     service nginx start
 }
 
 
-#
+##############################################################################
 # TASKS
-#
 
 install_prerequisites || error_exit
 download_all || error_exit
