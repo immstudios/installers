@@ -6,13 +6,11 @@ PCRE_VERSION="8.37"
 OPENSSL_VERSION="1.0.2d"
 
 REPO_URL="http://repo.imm.cz"
-SYSTEMD_PATH="/lib/systemd/systemd/nginx.service"
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
     "https://github.com/pagespeed/ngx_pagespeed"
 )
-
 
 #
 # Run as root only
@@ -27,20 +25,32 @@ fi
 # Working paths
 #
 
-
 if [ -z "$BASEDIR" ]; then
-    BASEDIR=`pwd`
+    BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 fi
 
 SRCDIR=/tmp/nginx_src
 
-#if [ -d "$SRCDIR" ]; then
-#    rm -rf $SRCDIR
-#fi
+if [ -d "$SRCDIR" ]; then
+    rm -rf $SRCDIR
+fi
 
 if [ ! -d "$SRCDIR" ]; then
     mkdir $SRCDIR
 fi
+
+#
+# Utilities
+#
+
+function error_exit {
+    echo ""
+    echo "Installation failed"
+    echo ""
+    cd $BASEDIR
+    exit 1
+}
+
 
 
 
@@ -159,54 +169,44 @@ function build_nginx {
      done
      
      $CMD || return 1
-
-     make
-     make install
+     make && make install || return 1
 
      return 0
 }
 
+function post_install {
+    echo "Running post-install configuration..."
+    HTMLDIR="/var/www/html"
 
 
-function create_systemd {
-    echo "[Unit]
-Description=The NGINX HTTP and reverse proxy server
-After=network.target
+    cd $BASEDIR
+    cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
+    cp nginx/cache.conf /etc/nginx/cache.conf || return 1
+    cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
 
-[Service]
-Type=forking
-PIDFile=/run/nginx.pid
-ExecStartPre=/usr/sbin/nginx -t -q -g 'daemon on; master_process on;'
-ExecStart=/usr/sbin/nginx -g 'daemon on; master_process on;'
-ExecReload=/usr/sbin/nginx -s reload
-ExecStop=/sbin/start-stop-daemon --stop --retry QUIT/5 --pidfile /run/nginx.conf
-TimeoutStopSec=5
-KillMode=mixed
+    if [ ! -d $HTMLDIR ]; then
+        mkdir $HTMLDIR
+    fi
 
-[Install]
-WantedBy=multi-user.target" > $SYSTEMD_PATH 
-
+    cp nginx/index.html $HTMLDIR
+    
+    
+    return 0
 }
 
-
+function start_nginx {
+    systemctl daemon-reload
+    service nginx stop
+    service nginx start
+}
 
 
 #
 # TASKS
 #
 
-
-function error_exit {
-    echo ""
-    echo "Installation failed"
-    echo ""
-    cd $BASEDIR
-    exit 1
-}
-
-
-
 install_prerequisites || error_exit
 download_all || error_exit
 build_nginx || error_exit
-
+post_install || error_exit
+start_nginx
