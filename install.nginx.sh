@@ -24,10 +24,12 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 function error_exit {
-    printf "\nInstallation failed\n"
+    printf "\n\033[0;31mInstallation failed\033[0m\n"
     cd $BASEDIR
     exit 1
 }
+
+error_exit
 
 ## COMMON UTILS
 ##############################################################################
