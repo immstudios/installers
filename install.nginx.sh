@@ -18,18 +18,27 @@
 BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 TEMPDIR=/tmp/$(basename "${BASH_SOURCE[0]}")
 
-if [ "$(id -u)" != "0" ]; then
-   echo "This script must be run as root" 1>&2
-   exit 1
-fi
-
 function error_exit {
     printf "\n\033[0;31mInstallation failed\033[0m\n"
     cd $BASEDIR
     exit 1
 }
 
-error_exit
+function finished {
+    printf "\n\033[0;92mInstallation completed\033[0m\n"
+    cd $BASEDIR
+    exit 0
+}
+
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   error_exit 
+fi
+
+if [ ! -d $TEMPDIR ]; then
+    mkdir $TEMPDIR || error_exit
+fi
 
 ## COMMON UTILS
 ##############################################################################
@@ -40,7 +49,6 @@ PCRE_VERSION="8.37"
 OPENSSL_VERSION="1.0.2d"
 
 REPO_URL="http://repo.imm.cz"
-SRCDIR=$TEMPDIR
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
@@ -50,8 +58,7 @@ MODULES=(
 
 
 function install_prerequisites {
-    apt-get update
-    apt-get install \
+    apt-get -y install \
         git \
         build-essential \
         curl \
@@ -63,8 +70,7 @@ function install_prerequisites {
 
 
 function download_all {
-    cd $SRCDIR
-
+    cd $TEMPDIR
     #
     # NGINX SOURCES
     #
@@ -108,10 +114,10 @@ function download_all {
     # Pagespeed download
     #
 
-    cd $SRCDIR/ngx_pagespeed
+    cd $TEMPDIR/ngx_pagespeed
     wget https://dl.google.com/dl/page-speed/psol/1.9.32.10.tar.gz
     tar -xzvf 1.9.32.10.tar.gz
-    cd $SRCDIR
+    cd $TEMPDIR
 
 }
 
@@ -120,7 +126,7 @@ function download_all {
 
 
 function build_nginx {
-    cd $SRCDIR
+    cd $TEMPDIR
     #
     # Configure
     #
@@ -139,9 +145,9 @@ function build_nginx {
         --group=www-data"
 
      CMD=$CMD" \
-        --with-pcre=$SRCDIR/pcre-$PCRE_VERSION \
-        --with-zlib=$SRCDIR/zlib-$ZLIB_VERSION \
-        --with-openssl=$SRCDIR/openssl-$OPENSSL_VERSION \
+        --with-pcre=$TEMPDIR/pcre-$PCRE_VERSION \
+        --with-zlib=$TEMPDIR/zlib-$ZLIB_VERSION \
+        --with-openssl=$TEMPDIR/openssl-$OPENSSL_VERSION \
         --with-http_stub_status_module \
         --with-http_flv_module \
         --with-http_mp4_module \
@@ -157,7 +163,7 @@ function build_nginx {
     
      for i in ${MODULES[@]}; do
         MNAME=`basename $i`
-        CMD=$CMD" --add-module=$SRCDIR/$MNAME"
+        CMD=$CMD" --add-module=$TEMPDIR/$MNAME"
      done
      
      $CMD || return 1
@@ -199,4 +205,5 @@ install_prerequisites || error_exit
 download_all || error_exit
 build_nginx || error_exit
 post_install || error_exit
-start_nginx
+start_nginx || error_exit
+finished

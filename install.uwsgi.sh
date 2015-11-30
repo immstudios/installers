@@ -18,24 +18,34 @@
 BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 TEMPDIR=/tmp/$(basename "${BASH_SOURCE[0]}")
 
-if [ "$(id -u)" != "0" ]; then
-   echo "This script must be run as root" 1>&2
-   exit 1
-fi
-
 function error_exit {
     printf "\n\033[0;31mInstallation failed\033[0m\n"
     cd $BASEDIR
     exit 1
 }
 
+function finished {
+    printf "\n\033[0;92mInstallation completed\033[0m\n"
+    cd $BASEDIR
+    exit 0
+}
+
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   error_exit 
+fi
+
+if [ ! -d $TEMPDIR ]; then
+    mkdir $TEMPDIR || error_exit
+fi
+
 ## COMMON UTILS
 ##############################################################################
 
 
 function install_uwsgi {
-    apt-get update
-    apt-get install \
+    apt-get -y install \
         python-pip \
         python-dev
     pip install uwsgi
@@ -75,4 +85,5 @@ function start_uwsgi {
 
 install_uwsgi || error_exit
 post_install || error_exit
-start_uwsgi
+start_uwsgi || error_exit
+finished
