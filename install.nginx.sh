@@ -53,6 +53,9 @@ REPO_URL="http://repo.imm.cz"
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
     "https://github.com/pagespeed/ngx_pagespeed"
+    "https://github.com/openresty/echo-nginx-module"
+    "https://github.com/openresty/headers-more-nginx-module"
+    "https://github.com/wandenberg/nginx-push-stream-module"
 )
 
 
@@ -71,6 +74,7 @@ function install_prerequisites {
 
 function download_all {
     cd $TEMPDIR
+
     #
     # NGINX SOURCES
     #
@@ -175,17 +179,23 @@ function build_nginx {
 function post_install {
     echo "Running post-install configuration..."
     
-    HTMLDIR="/var/www/html"
+    HTMLDIR="/var/www"
+    DEFAULTDIR="$HTMLDIR/default"
 
     if [ ! -d $HTMLDIR ]; then
         mkdir $HTMLDIR
+    fi
+
+    if [ ! -d $DEFAULTDIR ]; then
+        mkdir $DEFAULTDIR
+        cp nginx/http.conf $DEFAULTDIR
+        cp nginx/index.html $DEFAULTDIR
     fi
 
     cd $BASEDIR
     cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
     cp nginx/cache.conf /etc/nginx/cache.conf || return 1
     cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
-    cp nginx/index.html $HTMLDIR
     
     return 0
 }
