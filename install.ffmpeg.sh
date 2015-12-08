@@ -46,13 +46,14 @@ fi
 YASM_VERSION="1.3.0"
 FFMPEG_VERSION="2.8.3"
 NVENC_VERSION="5.0.1"
+VPX_VERSION="1.5.0"
+OPUS_VERSION="1.1.1"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
     "git://git.videolan.org/x264.git"
     "https://github.com/videolan/x265"
     "https://github.com/martastain/bmd-sdk"
-    "https://chromium.googlesource.com/webm/libvpx"
 )
 
 if [ -z "$PREFIX" ]; then
@@ -61,8 +62,9 @@ fi
 
 
 function install_prerequisites {
-    apt-get -y \
+    apt-get -y install\
         build-essential \
+        unzip \
         cmake \
         checkinstall \
         git \
@@ -98,6 +100,7 @@ function install_prerequisites {
 
 
 function download_repos {
+    cd $TEMPDIR
     for i in ${REPOS[@]}; do
         MNAME=`basename $i`
         if [ -d $MNAME ]; then
@@ -108,6 +111,7 @@ function download_repos {
             git clone $i || return 1
         fi
     done
+    return 0
 }
 
 
@@ -133,28 +137,39 @@ function install_fdk_aac {
     return 0
 }
 
+function install_opus {
+    cd $TEMPDIR
+    wget http://downloads.xiph.org/releases/opus/opus-${OPUS_VERSION}.tar.gz
+    tar -xf opus-${OPUS_VERSION}.tar.gz
+    cd opus-${OPUS_VERSION}
+    ./configure --prefix=$PREFIX \
+        --disable-static || return 1
+    make || return 1
+    make install || return 1
+    return 0
+}
 
 function install_nvenc {
     cd $TEMPDIR
     wget http://developer.download.nvidia.com/compute/nvenc/v5.0/nvenc_${NVENC_VERSION}_sdk.zip || return 1
-    unzip nvenc_${NVENC_VERSION}_sdk.zip
+    unzip nvenc_${NVENC_VERSION}_sdk.zip || return 1
     cp nvenc_${NVENC_VERSION}_sdk/Samples/common/inc/* /usr/include/
     return 0
 }
 
 
 function install_vpx {
-    cd $TEMPDIR/libvpx
+    cd $TEMPDIR
+    wget http://storage.googleapis.com/downloads.webmproject.org/releases/webm/libvpx-${VPX_VERSION}.tar.bz2
+    tar -xf libvpx-${VPX_VERSION}.tar.bz2
+    cd libvpx-${VPX_VERSION}
     ./configure \
-        --enable-shared \
-        --enable-vp8 \
-        --enable-vp9 \
-        --enable-vp9-postproc \
-        --enable-vp9-highbitdepth  \
-        --enable-vp9-temporal-denoising \
-        --enable-webm-io ||  return 1
+        --prefix=$PREFIX \
+        --disable-examples \
+        --disable-unit-tests ||  return 1
     make || return 1
     make install || return 1
+    make clean
     ldconfig
     return 0
 }
@@ -185,7 +200,7 @@ function install_x265 {
 function install_bmd {
     cd $TEMPDIR
     cp bmd-sdk/* /usr/include/
-    return 0
+    return 1
 }
 
 
@@ -218,7 +233,7 @@ function install_ffmpeg {
       --enable-libtheora             `# enable Theora encoding via libtheora` \
       --enable-libtwolame            `# enable MP2 encoding via libtwolame` \
       --enable-libvorbis             `# enable Vorbis en/decoding via libvorbis,` \
-      --enable-libvpx                `# enable VP8 and VP9 de/encoding via libvpx` \
+`#      --enable-libvpx                 enable VP8 and VP9 de/encoding via libvpx` \
       --enable-libwavpack            `# enable wavpack encoding via libwavpack` \
       --enable-libx264               `# enable H.264 encoding via x264` \
       --enable-libx265               `# enable HEVC encoding via x265` \
@@ -229,6 +244,7 @@ function install_ffmpeg {
 
     make || return 1
     make install || return 1
+    make clean
     ldconfig
     return 0
 }
@@ -236,12 +252,13 @@ function install_ffmpeg {
 ################################################
 
 
-install_prerequisities || error_exit
+install_prerequisites || error_exit
 download_repos || error_exit
 
 install_yasm || error_exit
 install_fdk_aac || error_exit
-install_vpx || error_exit
+install_opus || error_exit
+#install_vpx || error_exit # Enable VPX again in 2.8.4
 install_x264 || error_exit
 install_x265 || error_exit
 install_nvenc || error_exit
