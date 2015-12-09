@@ -199,8 +199,8 @@ function install_x265 {
 
 function install_bmd {
     cd $TEMPDIR
-    cp bmd-sdk/* /usr/include/
-    return 1
+    cp bmd-sdk/* /usr/include/ || return 1
+    return 0
 }
 
 
