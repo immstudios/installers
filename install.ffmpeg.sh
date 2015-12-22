@@ -44,7 +44,7 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="2.8.3"
+FFMPEG_VERSION="2.8.4"
 NVENC_VERSION="5.0.1"
 VPX_VERSION="1.5.0"
 OPUS_VERSION="1.1.1"
@@ -166,6 +166,7 @@ function install_vpx {
     ./configure \
         --prefix=$PREFIX \
         --disable-examples \
+        --enable-shared \
         --disable-unit-tests ||  return 1
     make || return 1
     make install || return 1
@@ -233,7 +234,7 @@ function install_ffmpeg {
       --enable-libtheora             `# enable Theora encoding via libtheora` \
       --enable-libtwolame            `# enable MP2 encoding via libtwolame` \
       --enable-libvorbis             `# enable Vorbis en/decoding via libvorbis,` \
-`#      --enable-libvpx                 enable VP8 and VP9 de/encoding via libvpx` \
+      --enable-libvpx                `# enable VP8 and VP9 de/encoding via libvpx` \
       --enable-libwavpack            `# enable wavpack encoding via libwavpack` \
       --enable-libx264               `# enable H.264 encoding via x264` \
       --enable-libx265               `# enable HEVC encoding via x265` \
@@ -252,17 +253,17 @@ function install_ffmpeg {
 ################################################
 
 
-install_prerequisites || error_exit
+#install_prerequisites || error_exit
 download_repos || error_exit
 
-install_yasm || error_exit
-install_fdk_aac || error_exit
-install_opus || error_exit
-#install_vpx || error_exit # Enable VPX again in 2.8.4
-install_x264 || error_exit
-install_x265 || error_exit
-install_nvenc || error_exit
-install_bmd || error_exit
+#install_yasm || error_exit
+#install_fdk_aac || error_exit
+#install_opus || error_exit
+install_vpx || error_exit
+#install_x264 || error_exit
+#install_x265 || error_exit
+#install_nvenc || error_exit
+#install_bmd || error_exit
 install_ffmpeg || error_exit
 
 finished
