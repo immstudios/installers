@@ -253,17 +253,17 @@ function install_ffmpeg {
 ################################################
 
 
-#install_prerequisites || error_exit
+install_prerequisites || error_exit
 download_repos || error_exit
 
-#install_yasm || error_exit
-#install_fdk_aac || error_exit
-#install_opus || error_exit
+install_yasm || error_exit
+install_fdk_aac || error_exit
+install_opus || error_exit
 install_vpx || error_exit
-#install_x264 || error_exit
-#install_x265 || error_exit
-#install_nvenc || error_exit
-#install_bmd || error_exit
+install_x264 || error_exit
+install_x265 || error_exit
+install_nvenc || error_exit
+install_bmd || error_exit
 install_ffmpeg || error_exit
 
 finished
