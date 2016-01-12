@@ -27,10 +27,9 @@ NGINX registered as systemd service.
 ### Included modules
 
  - rtmp module
- - pagespeed
  - echo
  - headers more
- - nginx http push stream 
+ - nginx http push stream
 
 
 ## uwsgi

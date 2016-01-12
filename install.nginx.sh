@@ -33,7 +33,7 @@ function finished {
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
-   error_exit 
+   error_exit
 fi
 
 if [ ! -d $TEMPDIR ]; then
@@ -52,7 +52,6 @@ REPO_URL="http://repo.imm.cz"
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
-    "https://github.com/pagespeed/ngx_pagespeed"
     "https://github.com/openresty/echo-nginx-module"
     "https://github.com/openresty/headers-more-nginx-module"
     "https://github.com/wandenberg/nginx-push-stream-module"
@@ -113,16 +112,6 @@ function download_all {
             git clone $i || return 1
         fi
     done
-
-    #
-    # Pagespeed download
-    #
-
-    cd $TEMPDIR/ngx_pagespeed
-    wget https://dl.google.com/dl/page-speed/psol/1.9.32.10.tar.gz
-    tar -xzvf 1.9.32.10.tar.gz
-    cd $TEMPDIR
-
 }
 
 
@@ -164,12 +153,12 @@ function build_nginx {
         --without-mail_pop3_module \
         --without-mail_smtp_module \
         --without-mail_imap_module"
-    
+
      for i in ${MODULES[@]}; do
         MNAME=`basename $i`
         CMD=$CMD" --add-module=$TEMPDIR/$MNAME"
      done
-     
+
      $CMD || return 1
      make && make install || return 1
 
@@ -178,7 +167,7 @@ function build_nginx {
 
 function post_install {
     echo "Running post-install configuration..."
-    
+
     HTMLDIR="/var/www"
     DEFAULTDIR="$HTMLDIR/default"
 
@@ -196,7 +185,7 @@ function post_install {
     cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
     cp nginx/cache.conf /etc/nginx/cache.conf || return 1
     cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
-    
+
     return 0
 }
 
