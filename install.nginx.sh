@@ -179,7 +179,8 @@ function post_install {
 
     cd $BASEDIR
     cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
-    cp nginx/cache.conf /etc/nginx/cache.conf || return 1
+    touch /etc/nginx/cache.conf || return 1
+    touch /etc/nginx/ssl.conf || return 1
     cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
 
     return 0
