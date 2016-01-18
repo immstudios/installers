@@ -177,8 +177,8 @@ function post_install {
 
     if [ ! -d $DEFAULTDIR ]; then
         mkdir $DEFAULTDIR
-        cp nginx/http.conf $DEFAULTDIR
-        cp nginx/index.html $DEFAULTDIR
+        cp nginx/http.conf $DEFAULTDIR/http.conf
+        cp nginx/index.html $DEFAULTDIR/index.html
     fi
 
     cd $BASEDIR
