@@ -88,9 +88,10 @@ function download_all {
     #
 
     for LIB in ${LIBS[@]}; do
+	LIBNAME=`basename ${LIB}`
         wget ${LIB} || return 1
-        tar -xvf ${LIB}.tar.gz || return 1
-        rm ${LIB}.tar.gz
+        tar -xvf ${LIBNAME} || return 1
+        rm ${LIBNAME}
     done
 
     #
