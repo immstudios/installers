@@ -43,12 +43,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.9.7"
+NGINX_VERSION="1.9.9"
 ZLIB_VERSION="1.2.8"
 PCRE_VERSION="8.37"
-OPENSSL_VERSION="1.0.2d"
-
-REPO_URL="http://repo.imm.cz"
+OPENSSL_VERSION="1.0.2e"
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
@@ -57,6 +55,11 @@ MODULES=(
     "https://github.com/wandenberg/nginx-push-stream-module"
 )
 
+LIBS=(
+    "http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
+    "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-${PCRE_VERSION}.tar.gz"
+    "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
+)
 
 
 function install_prerequisites {
@@ -69,13 +72,11 @@ function install_prerequisites {
         libxslt-dev
 }
 
-
-
 function download_all {
     cd $TEMPDIR
 
     #
-    # NGINX SOURCES
+    # NGINX sources
     #
 
     wget "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"
@@ -86,14 +87,8 @@ function download_all {
     # Libs
     #
 
-    LIBS=(
-        "zlib-${ZLIB_VERSION}"
-        "pcre-${PCRE_VERSION}"
-        "openssl-${OPENSSL_VERSION}"
-    )
-
     for LIB in ${LIBS[@]}; do
-        wget $REPO_URL/${LIB}.tar.gz || return 1
+        wget ${LIB} || return 1
         tar -xvf ${LIB}.tar.gz || return 1
         rm ${LIB}.tar.gz
     done
@@ -137,7 +132,7 @@ function build_nginx {
         --user=www-data \
         --group=www-data"
 
-     CMD=$CMD" \
+    CMD=$CMD" \
         --with-pcre=$TEMPDIR/pcre-$PCRE_VERSION \
         --with-zlib=$TEMPDIR/zlib-$ZLIB_VERSION \
         --with-openssl=$TEMPDIR/openssl-$OPENSSL_VERSION \
@@ -154,15 +149,15 @@ function build_nginx {
         --without-mail_smtp_module \
         --without-mail_imap_module"
 
-     for i in ${MODULES[@]}; do
-        MNAME=`basename $i`
-        CMD=$CMD" --add-module=$TEMPDIR/$MNAME"
-     done
+    for i in ${MODULES[@]}; do
+       MNAME=`basename $i`
+       CMD=$CMD" --add-module=$TEMPDIR/$MNAME"
+    done
 
-     $CMD || return 1
-     make && make install || return 1
+    $CMD || return 1
+    make && make install || return 1
 
-     return 0
+    return 0
 }
 
 function post_install {
