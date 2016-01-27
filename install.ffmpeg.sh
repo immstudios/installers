@@ -33,7 +33,7 @@ function finished {
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
-   error_exit 
+   error_exit
 fi
 
 if [ ! -d $TEMPDIR ]; then
@@ -44,7 +44,7 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="2.8.4"
+FFMPEG_VERSION="2.8.5"
 NVENC_VERSION="5.0.1"
 VPX_VERSION="1.5.0"
 OPUS_VERSION="1.1.1"
@@ -72,7 +72,6 @@ function install_prerequisites {
         autoconf \
         automake \
         pkg-config \
-        libtool-bin \
         sox \
         libfftw3-dev \
         fontconfig \
