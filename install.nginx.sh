@@ -46,7 +46,7 @@ fi
 NGINX_VERSION="1.9.9"
 ZLIB_VERSION="1.2.8"
 PCRE_VERSION="8.37"
-OPENSSL_VERSION="1.0.2e"
+OPENSSL_VERSION="1.0.2f"
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
