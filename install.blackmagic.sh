@@ -51,7 +51,7 @@ DESKTOP_VIDEO_FNAME="desktopvideo_${DESKTOP_VIDEO_VERSION}_amd64.deb"
 function install_desktop_video {
     wget ${REPO_URL}/${DESKTOP_VIDEO_FNAME} || return 1
     dpkg -i ${DESKTOP_VIDEO_FNAME}
-    apt-get -f install
+    apt-get -y -f install
     return 0
 }
 
