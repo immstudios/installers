@@ -44,10 +44,9 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="2.8.5"
-NVENC_VERSION="5.0.1"
+FFMPEG_VERSION="3.0"
 VPX_VERSION="1.5.0"
-OPUS_VERSION="1.1.1"
+OPUS_VERSION="1.1.2"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
@@ -73,6 +72,7 @@ function install_prerequisites {
         automake \
         pkg-config \
         sox \
+        libbluray-dev \
         libfftw3-dev \
         fontconfig \
         libfontconfig \
@@ -81,19 +81,30 @@ function install_prerequisites {
         frei0r-plugins-dev \
         libass-dev \
         flite1-dev \
+        ladspa-sdk \
+        ladspa-sdk-dev \
         libfreetype6-dev \
+        libchromaprint-dev \
+        libcaca-dev \
+        libfribidi-dev \
+        libgme-dev \
+        libpulse-dev \
         libmp3lame-dev \
+        libmodplug-dev \
         libtwolame-dev \
+        libbs2b-dev \
         libopenjpeg-dev \
         librtmp-dev \
         libschroedinger-dev \
+        libsoxr-dev \
         libopus-dev \
         libspeex-dev \
+        libssh-dev \
         libtheora-dev \
+        libv4l-dev \
         libvorbis-dev \
         libwavpack-dev \
-        libxvidcore4 \
-        libxvidcore-dev \
+        libwebp-dev \
         libzvbi-dev || exit 1
 }
 
@@ -150,9 +161,10 @@ function install_opus {
 
 function install_nvenc {
     cd $TEMPDIR
-    wget http://developer.download.nvidia.com/compute/nvenc/v5.0/nvenc_${NVENC_VERSION}_sdk.zip || return 1
-    unzip nvenc_${NVENC_VERSION}_sdk.zip || return 1
-    cp nvenc_${NVENC_VERSION}_sdk/Samples/common/inc/* /usr/include/
+    wget "https://developer.nvidia.com/video-sdk-601" -O nvenc_sdk.zip
+    unzip nvenc_sdk.zip || return 1
+    cp nvidia_video_sdk_*/Samples/common/inc/*.h /usr/include/
+    cp -r nvidia_video_sdk_*/Samples/common/inc/GL /usr/include/
     return 0
 }
 
@@ -218,29 +230,43 @@ function install_ffmpeg {
       --enable-shared \
       --enable-pic \
     \
-      --enable-fontconfig            `# enable fontconfig` \
-      --enable-frei0r                `# enable frei0r video filtering` \
-      --enable-libass                `# enable libass subtitles rendering` \
-      --enable-libfdk-aac            `# enable AAC encoding via FDK AAC` \
-      --enable-libflite              `# enable flite voice synthesis support via libflite` \
-      --enable-libfreetype           `# enable libfreetype` \
-      --enable-libmp3lame            `# enable MP3 encoding via libmp3lame` \
-      --enable-libopenjpeg           `# enable JPEG2000 de/encoding via OpenJPEG` \
-      --enable-libopus               `# enable Opus de/encoding via libopus` \
-      --enable-librtmp               `# enable RTMP[E] support via librtmp` \
-      --enable-libschroedinger       `# enable Dirac de/encoding via libschroedinger` \
-      --enable-libspeex              `# enable Speex de/encoding via libspeex` \
-      --enable-libtheora             `# enable Theora encoding via libtheora` \
-      --enable-libtwolame            `# enable MP2 encoding via libtwolame` \
-      --enable-libvorbis             `# enable Vorbis en/decoding via libvorbis,` \
-      --enable-libvpx                `# enable VP8 and VP9 de/encoding via libvpx` \
-      --enable-libwavpack            `# enable wavpack encoding via libwavpack` \
-      --enable-libx264               `# enable H.264 encoding via x264` \
-      --enable-libx265               `# enable HEVC encoding via x265` \
-      --enable-libxvid               `# enable Xvid encoding via xvidcore,` \
-      --enable-libzvbi               `# enable teletext support via libzvbi` \
-      --enable-decklink              `# enable Blackmagick DeckLink I/O support` \
-      --enable-nvenc                 `# enable Enable nvenc` || return 1
+    --enable-chromaprint     ` # enable audio fingerprinting with chromaprint` \
+    --enable-fontconfig      ` # enable fontconfig, useful for drawtext filter` \
+    --enable-frei0r          ` # enable frei0r video filtering` \
+    --enable-ladspa          ` # enable LADSPA audio filtering` \
+    --enable-libass          ` # enable libass subtitles rendering, needed for subtitles and ass filter` \
+    --enable-libbluray       ` # enable BluRay reading using libbluray` \
+    --enable-libbs2b         ` # enable bs2b DSP library` \
+    --enable-libcaca         ` # enable textual display using libcaca` \
+    --enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
+    --enable-libflite        ` # enable flite (voice synthesis) support via libflite` \
+    --enable-libfreetype     ` # enable libfreetype, needed for drawtext filter` \
+    --enable-libfribidi      ` # enable libfribidi, improves drawtext filter` \
+    --enable-libgme          ` # enable Game Music Emu via libgme` \
+    --enable-libmodplug      ` # enable ModPlug via libmodplug` \
+    --enable-libmp3lame      ` # enable MP3 encoding via libmp3lame` \
+    --enable-libopenjpeg     ` # enable JPEG 2000 de/encoding via OpenJPEG` \
+    --enable-libopus         ` # enable Opus de/encoding via libopus` \
+    --enable-libpulse        ` # enable Pulseaudio input via libpulse` \
+    --enable-librtmp         ` # enable RTMP[E] support via librtmp` \
+    --enable-libschroedinger ` # enable Dirac de/encoding via libschroedinger` \
+    --enable-libsoxr         ` # enable Include libsoxr resampling` \
+    --enable-libspeex        ` # enable Speex de/encoding via libspeex` \
+    --enable-libssh          ` # enable SFTP protocol via libssh` \
+    --enable-libtheora       ` # enable Theora encoding via libtheora` \
+    --enable-libtwolame      ` # enable MP2 encoding via libtwolame` \
+    --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
+    --enable-libvpx          ` # enable VP8 and VP9 de/encoding via libvpx` \
+    --enable-libwavpack      ` # enable wavpack encoding via libwavpack` \
+    --enable-libwebp         ` # enable WebP encoding via libwebp` \
+    --enable-libx264         ` # enable H.264 encoding via x264` \
+    --enable-libx265         ` # enable HEVC encoding via x265` \
+    --enable-libzvbi         ` # enable teletext support via libzvbi` \
+    --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
+    --enable-nvenc           ` # enable NVIDIA NVENC support` \
+    --enable-openssl         ` # enable openssl, needed for https support if gnutls is not used` \
+    || return 1
+
 
     make || return 1
     make install || return 1
