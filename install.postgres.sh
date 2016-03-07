@@ -51,7 +51,7 @@ function install_postgres {
     echo "deb http://apt.postgresql.org/pub/repos/apt/ ${DEB_RELEASE}-pgdg main ${PG_VERSION}" > /etc/apt/sources.list.d/postgresql.list
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
     apt-get update || return 1
-    apt-get install postgresql-9.5 || return 1
+    apt-get -y install postgresql-9.5 || return 1
 }
 
 
