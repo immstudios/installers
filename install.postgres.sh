@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 imm studios, z.s.
+# Copyright (c) 2016 imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -46,14 +46,15 @@ fi
 DEB_RELEASE="jessie"
 PG_VERSION="9.5"
 
-
 function install_postgres {
     echo "deb http://apt.postgresql.org/pub/repos/apt/ ${DEB_RELEASE}-pgdg main ${PG_VERSION}" > /etc/apt/sources.list.d/postgresql.list
-    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
     apt-get update || return 1
-    apt-get -y install postgresql-9.5 || return 1
+    apt-get -y install \
+        postgresql-9.5 \
+        postgresql-contrib-9.5 \
+        || return 1
 }
-
 
 install_postgres
 finished
