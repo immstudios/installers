@@ -44,7 +44,7 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="3.0"
+FFMPEG_VERSION="3.0.2"
 VPX_VERSION="1.5.0"
 OPUS_VERSION="1.1.2"
 
