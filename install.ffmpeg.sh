@@ -94,7 +94,6 @@ function install_prerequisites {
         libtwolame-dev \
         libbs2b-dev \
         libopenjpeg-dev \
-        librtmp-dev \
         libschroedinger-dev \
         libsoxr-dev \
         libopus-dev \
@@ -248,7 +247,6 @@ function install_ffmpeg {
     --enable-libopenjpeg     ` # enable JPEG 2000 de/encoding via OpenJPEG` \
     --enable-libopus         ` # enable Opus de/encoding via libopus` \
     --enable-libpulse        ` # enable Pulseaudio input via libpulse` \
-    --enable-librtmp         ` # enable RTMP[E] support via librtmp` \
     --enable-libschroedinger ` # enable Dirac de/encoding via libschroedinger` \
     --enable-libsoxr         ` # enable Include libsoxr resampling` \
     --enable-libspeex        ` # enable Speex de/encoding via libspeex` \
