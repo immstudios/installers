@@ -43,22 +43,20 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-DEB_RELEASE="jessie"
+DEB_BRANCH=`lsb_release -is | tr '[:upper:]' '[:lower:]'`
+DEB_RELEASE=`lsb_release -cs`
 
 function install_docker {
-
     apt-get purge lxc-docker*
     apt-get purge docker.io*
     apt-get update
     apt-get install apt-transport-https ca-certificates
     apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 
-    echo "deb https://apt.dockerproject.org/repo debian-${DEB_RELEASE} main" > /etc/apt/sources.list.d/docker.list
+    echo "deb https://apt.dockerproject.org/repo ${DEB_BRANCH}-${DEB_RELEASE} main" > /etc/apt/sources.list.d/docker.list
     apt-get update
     apt-get install docker-engine
     service docker start
-
-
 }
 
 install_docker
