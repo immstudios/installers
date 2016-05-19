@@ -43,7 +43,8 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-DEB_RELEASE="jessie"
+DEB_BRANCH=`lsb_release -is | tr '[:upper:]' '[:lower:]'`
+DEB_RELEASE=`lsb_release -cs`
 PG_VERSION="9.5"
 
 function install_postgres {
