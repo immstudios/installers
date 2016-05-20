@@ -46,31 +46,30 @@ fi
 DEB_BRANCH=`lsb_release -is | tr '[:upper:]' '[:lower:]'`
 DEB_RELEASE=`lsb_release -cs`
 
+VAGRANT_VERSION="1.8.1"
 
 function install_virtualbox {
     APT="deb http://download.virtualbox.org/virtualbox/${DEB_BRANCH} ${DEB_RELEASE} contrib"
     echo $APT > /etc/apt/sources.list.d/virtualbox.list
-    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
+    wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
     apt-get update
     apt-get -y install virtualbox-5.0
 }
 
 function install_vagrant {
     cd $TEMPDIR
-    wget https://releases.hashicorp.com/vagrant/1.7.4/vagrant_1.7.4_x86_64.deb
-    dpkg -i vagrant_1.7.4_x86_64.deb
+    wget https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb || return 1
+    dpkg -i vagrant_${VAGRANT_VERSION}_x86_64.deb || return 1
 }
-
 
 function install_ansible {
-    #TODO:
-    cd /opt
-    git clone git://github.com/ansible/ansible.git --recursive
-    cd ./ansible
-    source ./hacking/env-setup
+    apt-get -y install python-pip python-dev
+    pip install paramiko PyYAML Jinja2 httplib2 six
+    pip install ansible
 }
 
-
-install_virtualbox
-install_vagrant
+install_virtualbox || error_exit
+install_vagrant || error_exit
+install_ansible || error_exit
 finished
