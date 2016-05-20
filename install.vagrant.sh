@@ -49,10 +49,10 @@ DEB_RELEASE=`lsb_release -cs`
 VAGRANT_VERSION="1.8.1"
 
 function install_virtualbox {
-    APT="deb http://download.virtualbox.org/virtualbox/${DEB_BRANCH} ${DEB_RELEASE} contrib"
+    APT="deb http://download.virtualbox.org/virtualbox/debian ${DEB_RELEASE} contrib"
     echo $APT > /etc/apt/sources.list.d/virtualbox.list
-    wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+    wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
     apt-get update
     apt-get -y install virtualbox-5.0
 }
@@ -64,7 +64,7 @@ function install_vagrant {
 }
 
 function install_ansible {
-    apt-get -y install python-pip python-dev
+    apt-get -y install python-pip python-dev libffi-dev
     pip install paramiko PyYAML Jinja2 httplib2 six
     pip install ansible
 }
