@@ -64,9 +64,10 @@ function install_vagrant {
 }
 
 function install_ansible {
-    apt-get -y install python-pip python-dev libffi-dev
-    pip install paramiko PyYAML Jinja2 httplib2 six
-    pip install ansible
+    apt-get -y install python-pip python-dev libssl-dev || return 1
+    pip install cffi || return 1
+    pip install paramiko PyYAML Jinja2 httplib2 six markupsafe cryptography || return 1
+    pip install ansible || return 1
 }
 
 install_virtualbox || error_exit
