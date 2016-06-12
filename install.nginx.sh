@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.10.0"
+NGINX_VERSION="1.10.1"
 ZLIB_VERSION="1.2.8"
 PCRE_VERSION="8.37"
 OPENSSL_VERSION="1.0.2h"
@@ -186,6 +186,11 @@ function post_install {
     return 0
 }
 
+function add_security {
+    openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+    cp nginx/nginx_ssl.conf /etc/nginx/ssl.conf
+}
+
 function start_nginx {
     echo "(re)starting NGINX service..."
     systemctl daemon-reload
@@ -201,5 +206,6 @@ install_prerequisites || error_exit
 download_all || error_exit
 build_nginx || error_exit
 post_install || error_exit
+add_security || error_exit
 start_nginx || error_exit
 finished
