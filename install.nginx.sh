@@ -187,7 +187,9 @@ function post_install {
 }
 
 function add_security {
-    openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+    if [ ! -f /etc/ssl/certs/dhparam.pem ]; then
+        openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+    fi
     cp nginx/ssl.conf /etc/nginx/ssl.conf
 }
 
