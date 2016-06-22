@@ -163,6 +163,7 @@ function build_nginx {
 
 function post_install {
     echo "Running post-install configuration..."
+    cd $BASEDIR
 
     HTMLDIR="/var/www"
     DEFAULTDIR="$HTMLDIR/default"
