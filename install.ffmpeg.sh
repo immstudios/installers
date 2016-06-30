@@ -50,7 +50,7 @@ OPUS_VERSION="1.1.2"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
-    "git://git.videolan.org/x264.git"
+    "https://github.com/mirror/x264"
     "https://github.com/videolan/x265"
     "https://github.com/martastain/bmd-sdk"
 )
