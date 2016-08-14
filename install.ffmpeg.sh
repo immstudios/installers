@@ -44,9 +44,9 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="3.1"
-VPX_VERSION="1.5.0"
-OPUS_VERSION="1.1.2"
+FFMPEG_VERSION="3.1.2"
+VPX_VERSION="1.6.0"
+OPUS_VERSION="1.1.3"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
