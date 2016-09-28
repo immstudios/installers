@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 imm studios, z.s.
+# Copyright (c) 2016 imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,7 @@ fi
 
 NGINX_VERSION="1.10.1"
 ZLIB_VERSION="1.2.8"
-PCRE_VERSION="8.37"
+PCRE_VERSION="8.39"
 OPENSSL_VERSION="1.0.2h"
 
 MODULES=(
