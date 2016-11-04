@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 imm studios, z.s.
+# Copyright (c) 2015 - 2016 imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ function finished {
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
-   error_exit 
+   error_exit
 fi
 
 if [ ! -d $TEMPDIR ]; then
@@ -69,7 +69,7 @@ function post_install {
     cd $BASEDIR
     cp uwsgi/uwsgi.service /lib/systemd/system/uwsgi.service || return 1
     cp uwsgi/emperor.ini $CONFDIR/emperor.ini
-    
+
     return 0
 }
 

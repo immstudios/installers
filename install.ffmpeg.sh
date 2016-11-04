@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 imm studios, z.s.
+# Copyright (c) 2015 - 2016  imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
