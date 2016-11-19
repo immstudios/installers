@@ -4,7 +4,7 @@
 
 ### Included modules
 
- - latest stable ffmpeg (2.8.5)
+ - latest stable ffmpeg
  - libx264
  - libx265
  - libvpx
