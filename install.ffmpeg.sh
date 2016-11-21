@@ -44,7 +44,7 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="3.1.3"
+FFMPEG_VERSION="3.2"
 VPX_VERSION="1.6.0"
 OPUS_VERSION="1.1.3"
 
@@ -229,6 +229,7 @@ function install_ffmpeg {
       --enable-shared \
       --enable-pic \
     \
+    --enable-avresample \
     --enable-chromaprint     ` # enable audio fingerprinting with chromaprint` \
     --enable-fontconfig      ` # enable fontconfig, useful for drawtext filter` \
     --enable-frei0r          ` # enable frei0r video filtering` \
