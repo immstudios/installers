@@ -43,10 +43,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.10.1"
+NGINX_VERSION="1.10.2"
 ZLIB_VERSION="1.2.8"
 PCRE_VERSION="8.39"
-OPENSSL_VERSION="1.0.2h"
+OPENSSL_VERSION="1.1.0c"
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
