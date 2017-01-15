@@ -44,7 +44,7 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="3.2"
+FFMPEG_VERSION="3.2.2"
 VPX_VERSION="1.6.0"
 OPUS_VERSION="1.1.3"
 
@@ -278,7 +278,7 @@ function install_ffmpeg {
 
 
 install_prerequisites || error_exit
-download_repos || error_exit
+.2download_repos || error_exit
 
 install_yasm || error_exit
 install_fdk_aac || error_exit
