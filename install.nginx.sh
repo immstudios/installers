@@ -43,10 +43,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.10.2"
-ZLIB_VERSION="1.2.8"
+NGINX_VERSION="1.10.3"
+ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.39"
-OPENSSL_VERSION="1.1.0c"
+OPENSSL_VERSION="1.1.0e"
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
@@ -111,11 +111,9 @@ function download_all {
 }
 
 
-
-
-
 function build_nginx {
     cd $TEMPDIR
+
     #
     # Configure
     #
