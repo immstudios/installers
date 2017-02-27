@@ -44,7 +44,7 @@ fi
 ##############################################################################
 
 YASM_VERSION="1.3.0"
-FFMPEG_VERSION="3.2.2"
+FFMPEG_VERSION="3.2.4"
 VPX_VERSION="1.6.0"
 OPUS_VERSION="1.1.3"
 
@@ -75,14 +75,13 @@ function install_prerequisites {
         libbluray-dev \
         libfftw3-dev \
         fontconfig \
-        libfontconfig \
-        libfontconfig-dev \
+        libfontconfig1 \
+        libfontconfig1-dev \
         frei0r-plugins \
         frei0r-plugins-dev \
         libass-dev \
         flite1-dev \
         ladspa-sdk \
-        ladspa-sdk-dev \
         libfreetype6-dev \
         libchromaprint-dev \
         libcaca-dev \
@@ -93,8 +92,6 @@ function install_prerequisites {
         libmodplug-dev \
         libtwolame-dev \
         libbs2b-dev \
-        libopenjpeg-dev \
-        libschroedinger-dev \
         libsoxr-dev \
         libopus-dev \
         libspeex-dev \
@@ -230,7 +227,6 @@ function install_ffmpeg {
       --enable-pic \
     \
     --enable-avresample \
-    --enable-chromaprint     ` # enable audio fingerprinting with chromaprint` \
     --enable-fontconfig      ` # enable fontconfig, useful for drawtext filter` \
     --enable-frei0r          ` # enable frei0r video filtering` \
     --enable-ladspa          ` # enable LADSPA audio filtering` \
@@ -245,10 +241,8 @@ function install_ffmpeg {
     --enable-libgme          ` # enable Game Music Emu via libgme` \
     --enable-libmodplug      ` # enable ModPlug via libmodplug` \
     --enable-libmp3lame      ` # enable MP3 encoding via libmp3lame` \
-    --enable-libopenjpeg     ` # enable JPEG 2000 de/encoding via OpenJPEG` \
     --enable-libopus         ` # enable Opus de/encoding via libopus` \
     --enable-libpulse        ` # enable Pulseaudio input via libpulse` \
-    --enable-libschroedinger ` # enable Dirac de/encoding via libschroedinger` \
     --enable-libsoxr         ` # enable Include libsoxr resampling` \
     --enable-libspeex        ` # enable Speex de/encoding via libspeex` \
     --enable-libssh          ` # enable SFTP protocol via libssh` \
@@ -278,7 +272,7 @@ function install_ffmpeg {
 
 
 install_prerequisites || error_exit
-.2download_repos || error_exit
+download_repos || error_exit
 
 install_yasm || error_exit
 install_fdk_aac || error_exit
