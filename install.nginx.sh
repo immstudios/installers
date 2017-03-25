@@ -43,14 +43,13 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.10.3"
+NGINX_VERSION="1.11.11"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.39"
 OPENSSL_VERSION="1.1.0e"
 
 MODULES=(
     "https://github.com/arut/nginx-rtmp-module"
-    "https://github.com/openresty/echo-nginx-module"
     "https://github.com/openresty/headers-more-nginx-module"
     "https://github.com/wandenberg/nginx-push-stream-module"
 )
@@ -127,7 +126,7 @@ function build_nginx {
         --pid-path=/run/nginx.pid \
         --lock-path=/var/lock/nginx.lock \
         --error-log-path=/var/log/nginx/error.log \
-        --http-log-path=/var/log/access.log \
+        --http-log-path=/var/log/nginx/access.log \
         --user=www-data \
         --group=www-data"
 
