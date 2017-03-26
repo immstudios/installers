@@ -43,16 +43,14 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.11.4"
-ZLIB_VERSION="1.2.8"
+NGINX_VERSION="1.11.11"
+ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.39"
-OPENSSL_VERSION="1.0.2h"
+OPENSSL_VERSION="1.1.0e"
 
 MODULES=(
-    "https://github.com/arut/nginx-rtmp-module"
     "https://github.com/openresty/echo-nginx-module"
     "https://github.com/openresty/headers-more-nginx-module"
-    "https://github.com/wandenberg/nginx-push-stream-module"
     "https://github.com/kaltura/nginx-vod-module"
 )
 
@@ -112,13 +110,10 @@ function download_all {
 }
 
 
-#        --with-threads \
-#        --with-file-aio \
-
-
 
 function build_nginx {
     cd $TEMPDIR
+
     #
     # Configure
     #
@@ -132,7 +127,7 @@ function build_nginx {
         --pid-path=/run/nginx.pid \
         --lock-path=/var/lock/nginx.lock \
         --error-log-path=/var/log/nginx/error.log \
-        --http-log-path=/var/log/access.log \
+        --http-log-path=/var/log/nginx/access.log \
         --user=www-data \
         --group=www-data"
 
@@ -169,7 +164,7 @@ function post_install {
     cd $BASEDIR
 
     HTMLDIR="/var/www"
-    DEFAULTDIR="$HTMLDIR/default"
+    DEFAULTDIR="$HTMLDIR/kaltura"
 
     if [ ! -d $HTMLDIR ]; then
         mkdir $HTMLDIR
@@ -177,12 +172,16 @@ function post_install {
 
     if [ ! -d $DEFAULTDIR ]; then
         mkdir $DEFAULTDIR
-        cp nginx/http.conf $DEFAULTDIR/http.conf
-        cp nginx/index.html $DEFAULTDIR/index.html
+        cp kaltura/http.conf $DEFAULTDIR/http.conf
+        cp -r kaltura/site $DEFAULTDIR/
+    fi
+
+    if [ ! -d $DEFAULTDIR/data ]; then
+        mkdir $DEFAULTDIR/data
     fi
 
     cd $BASEDIR
-    cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
+    cp kaltura/nginx.conf /etc/nginx/nginx.conf || return 1
     touch /etc/nginx/cache.conf || return 1
     touch /etc/nginx/ssl.conf || return 1
     cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
@@ -190,12 +189,6 @@ function post_install {
     return 0
 }
 
-function add_security {
-    if [ ! -f /etc/ssl/certs/dhparam.pem ]; then
-        openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
-    fi
-    cp nginx/ssl.conf /etc/nginx/ssl.conf
-}
 
 function start_nginx {
     echo "(re)starting NGINX service..."
@@ -212,6 +205,5 @@ install_prerequisites || error_exit
 download_all || error_exit
 build_nginx || error_exit
 post_install || error_exit
-add_security || error_exit
 start_nginx || error_exit
 finished
