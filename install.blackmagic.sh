@@ -30,7 +30,6 @@ function finished {
     exit 0
 }
 
-
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
    error_exit
@@ -43,7 +42,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-DESKTOP_VIDEO_VERSION="10.8.2a4"
+DESKTOP_VIDEO_VERSION="10.8.5a4"
 
 REPO_URL="http://repo.imm.cz"
 DESKTOP_VIDEO_FNAME="desktopvideo_${DESKTOP_VIDEO_VERSION}_amd64.deb"

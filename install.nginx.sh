@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.11.11"
+NGINX_VERSION="1.11.13"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.39"
 OPENSSL_VERSION="1.1.0e"
@@ -78,7 +78,7 @@ function download_all {
     # NGINX sources
     #
 
-    wget "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"
+    wget "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" || error_exit
     tar -xvf nginx-${NGINX_VERSION}.tar.gz
     rm nginx-${NGINX_VERSION}
 
@@ -208,4 +208,5 @@ build_nginx || error_exit
 post_install || error_exit
 add_security || error_exit
 start_nginx || error_exit
+
 finished
