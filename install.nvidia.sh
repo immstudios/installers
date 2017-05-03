@@ -45,6 +45,10 @@ fi
 
 DRIVER_VERSION="375.39"
 
+function install_prerequisites {
+    apt install linux-headers-$(uname -r|sed 's,[^-]*-[^-]*-,,')
+}
+
 function install_driver {
     cd $TEMPDIR
     SCRIPT_NAME="NVIDIA-Linux-x86_64-$DRIVER_VERSION.run"
@@ -61,5 +65,6 @@ function install_driver {
     return 0
 }
 
+install_prerequisites || error_exit
 install_driver || error_exit
 
