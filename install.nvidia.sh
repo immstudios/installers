@@ -52,7 +52,9 @@ function install_prerequisites {
 function install_driver {
     cd $TEMPDIR
     SCRIPT_NAME="NVIDIA-Linux-x86_64-$DRIVER_VERSION.run"
-    wget http://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/$SCRIPT_NAME
+    if [ ! -f $SCRIPT_NAME ]; then
+        wget http://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/$SCRIPT_NAME
+    fi
     chmod +x "$SCRIPT_NAME"
 
     ./$SCRIPT_NAME -q -a -n -X -s
