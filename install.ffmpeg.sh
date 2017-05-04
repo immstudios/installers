@@ -51,7 +51,7 @@ X265_VERSION="2.3"
 YASM_VERSION="1.3.0"
 
 
-if [ -d "/usr/local/cuda" ]; then
+if [ -d "/usr/local/cuda" ] || [ -L "/usr/local/cuda" ]; then
     CUDA_PARAMS="--enable-cuda --enable-cuvid --enable-libnpp"
     CUDA_PARAMS="$CUDA_PARAMS --extra-cflags=\"-I/usr/local/cuda/include/\""
     CUDA_PARAMS="$CUDA_PARAMS --extra-ldflags=\"-L/usr/local/cuda/lib64/\""
