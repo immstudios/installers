@@ -24,6 +24,7 @@ function error_exit {
     exit 1
 }
 
+
 function finished {
     printf "\n\033[0;92mInstallation completed\033[0m\n"
     cd $BASEDIR
@@ -43,13 +44,13 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.11.13"
+NGINX_VERSION="1.13.0"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.39"
 OPENSSL_VERSION="1.1.0e"
 
 MODULES=(
-    "https://github.com/arut/nginx-rtmp-module"
+    "https://github.com/martastain/nginx-rtmp-module"
     "https://github.com/openresty/headers-more-nginx-module"
     "https://github.com/wandenberg/nginx-push-stream-module"
 )
@@ -73,24 +74,25 @@ function install_prerequisites {
 
 function download_all {
     cd $TEMPDIR
+    INSTALLER_NAME="nginx-${NGINX_VERSION}"
 
-    #
-    # NGINX sources
-    #
+    if [ ! -f ${INSTALLER_NAME}.tar.gz ]; then
+        wget "http://nginx.org/download/${INSTALLER_NAME}.tar.gz" || error_exit
+    fi
+    if [ ! -d ${INSTALLER_NAME} ]; then
+        tar -xvf ${NGINX_VERSION}.tar.gz
+    fi
 
-    wget "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" || error_exit
-    tar -xvf nginx-${NGINX_VERSION}.tar.gz
-    rm nginx-${NGINX_VERSION}
-
-    #
     # Libs
-    #
 
     for LIB in ${LIBS[@]}; do
-	LIBNAME=`basename ${LIB}`
-        wget ${LIB} || return 1
-        tar -xvf ${LIBNAME} || return 1
-        rm ${LIBNAME}
+        LIBNAME=`basename ${LIB}`
+        if [ ! -f ${LIBNAME} ]; then
+            wget ${LIB} || return 1
+        fi
+        if [ ! -d `basename ${LIB} | cut -f 1 -d "."` ]; then
+            tar -xvf ${LIBNAME} || return 1
+        fi
     done
 
     #
