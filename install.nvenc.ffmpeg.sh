@@ -46,7 +46,6 @@ fi
 FFMPEG_VERSION="3.3.1"
 NVENC_VERSION="7.1.9"
 
-CUDA_PARAMS="--enable-cuda --enable-cuvid --enable-libnpp"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
@@ -56,6 +55,7 @@ REPOS=(
 if [ -z "$PREFIX" ]; then
     PREFIX="/usr/local"
 fi
+
 
 function install_prerequisites {
     apt-get -y install\
@@ -71,21 +71,16 @@ function install_prerequisites {
         pkg-config \
         nvidia-cuda-dev \
         nvidia-cuda-toolkit \
-        nvidia-cuda-gdb \
-        nvidia-cuda-mps \
         libnvidia-encode1 \
         libfftw3-dev \
         fontconfig \
         libfontconfig1 \
         libfontconfig1-dev \
-        frei0r-plugins \
-        frei0r-plugins-dev \
         libass-dev \
         libfreetype6-dev \
         libchromaprint-dev \
         libx264-dev \
         libx265-dev \
-        libcaca-dev \
         libmp3lame-dev \
         libtwolame-dev \
         libbs2b-dev \
@@ -93,7 +88,6 @@ function install_prerequisites {
         librtmp1 \
         libsoxr-dev \
         libopus-dev \
-        libspeex-dev \
         libssh-dev \
         libv4l-dev \
         libwavpack-dev \
@@ -130,11 +124,12 @@ function install_fdk_aac {
 function install_nvenc {
     cd $TEMPDIR
     MODULE_NAME="Video_Codec_SDK_${NVENC_VERSION}"
-    wget "http://repo.imm.cz/${MODULE_NAME}.zip"
-    if [ -d ${MODULE_NAME} ]; then
-        rm -rf ${MODLE_NAME}
+    if [ ! -f ${MODULE_NAME}.zip ]; then
+        wget "http://repo.imm.cz/${MODULE_NAME}.zip"
     fi
-    unzip ${MODULE_NAME}.zip || return 1
+    if [ ! -d ${MODULE_NAME} ]; then
+        unzip ${MODULE_NAME}.zip || return 1
+    fi
     cp -v ${MODULE_NAME}/Samples/common/inc/*.h /usr/include/
     cp -rv ${MODULE_NAME}/Samples/common/inc/GL /usr/include/
     return 0
@@ -170,17 +165,12 @@ function install_ffmpeg {
     \
     --enable-avresample \
     --enable-fontconfig      ` # enable fontconfig, useful for drawtext filter` \
-    --enable-frei0r          ` # enable frei0r video filtering` \
     --enable-libass          ` # enable libass subtitles rendering` \
     --enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
     --enable-libfreetype     ` # enable libfreetype, needed for drawtext filter` \
-    --enable-libmodplug      ` # enable ModPlug via libmodplug` \
     --enable-libmp3lame      ` # enable MP3 encoding via libmp3lame` \
     --enable-libopus         ` # enable Opus de/encoding via libopus` \
-    --enable-librtmp         ` # enable LibRTMP` \
     --enable-libsoxr         ` # enable Include libsoxr resampling` \
-    --enable-libspeex        ` # enable Speex de/encoding via libspeex` \
-    --enable-libssh          ` # enable SFTP protocol via libssh` \
     --enable-libtwolame      ` # enable MP2 encoding via libtwolame` \
     --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
     --enable-libwavpack      ` # enable wavpack encoding via libwavpack` \
@@ -188,10 +178,14 @@ function install_ffmpeg {
     --enable-libx264         ` # enable H.264 encoding via x264` \
     --enable-libx265         ` # enable HEVC encoding via x265` \
     --enable-libzvbi         ` # enable teletext support via libzvbi` \
+    --enable-librtmp         ` # enable LibRTMP` \
+    --enable-openssl         ` # needed for https support if gnutls is not used` \
+    --enable-libssh          ` # enable SFTP protocol via libssh` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
     --enable-nvenc           ` # enable NVIDIA NVENC support` \
-    --enable-openssl         ` # needed for https support if gnutls is not used` \
-    $CUDA_PARAMS \
+    --enable-cuda \
+    --enable-cuvid \
+    --enable-libnpp \
     || return 1
 
     echo "Making ffmpeg"
@@ -206,6 +200,7 @@ function install_ffmpeg {
 
 
 install_prerequisites || error_exit
+
 download_repos || error_exit
 
 install_fdk_aac || error_exit
