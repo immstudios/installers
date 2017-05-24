@@ -78,19 +78,15 @@ function install_prerequisites {
         libfontconfig1-dev \
         libass-dev \
         libfreetype6-dev \
-        libchromaprint-dev \
         libx264-dev \
         libx265-dev \
         libmp3lame-dev \
         libtwolame-dev \
-        libbs2b-dev \
         librtmp-dev \
         librtmp1 \
-        libsoxr-dev \
         libopus-dev \
         libssh-dev \
         libv4l-dev \
-        libwavpack-dev \
         libwebp-dev \
         libzvbi-dev || exit 1
 }
@@ -125,7 +121,7 @@ function install_nvenc {
     cd $TEMPDIR
     MODULE_NAME="Video_Codec_SDK_${NVENC_VERSION}"
     if [ ! -f ${MODULE_NAME}.zip ]; then
-        wget "http://repo.imm.cz/${MODULE_NAME}.zip"
+        wget "http://repo.imm.cz/${MODULE_NAME}.zip" || return 1
     fi
     if [ ! -d ${MODULE_NAME} ]; then
         unzip ${MODULE_NAME}.zip || return 1
@@ -170,10 +166,8 @@ function install_ffmpeg {
     --enable-libfreetype     ` # enable libfreetype, needed for drawtext filter` \
     --enable-libmp3lame      ` # enable MP3 encoding via libmp3lame` \
     --enable-libopus         ` # enable Opus de/encoding via libopus` \
-    --enable-libsoxr         ` # enable Include libsoxr resampling` \
     --enable-libtwolame      ` # enable MP2 encoding via libtwolame` \
     --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
-    --enable-libwavpack      ` # enable wavpack encoding via libwavpack` \
     --enable-libwebp         ` # enable WebP encoding via libwebp` \
     --enable-libx264         ` # enable H.264 encoding via x264` \
     --enable-libx265         ` # enable HEVC encoding via x265` \
