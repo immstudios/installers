@@ -61,7 +61,6 @@ LIBS=(
     "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
 )
 
-
 function install_prerequisites {
     apt-get -y install \
         git \
@@ -77,10 +76,11 @@ function download_all {
     INSTALLER_NAME="nginx-${NGINX_VERSION}"
 
     if [ ! -f ${INSTALLER_NAME}.tar.gz ]; then
-        wget "http://nginx.org/download/${INSTALLER_NAME}.tar.gz" || error_exit
+        wget "http://nginx.org/download/${INSTALLER_NAME}.tar.gz" || return 1
     fi
     if [ ! -d ${INSTALLER_NAME} ]; then
-        tar -xvf ${NGINX_VERSION}.tar.gz
+        echo "Unpacking ${INSTALLER_NAME}"
+        tar -xf ${INSTALLER_NAME}.tar.gz || return 1
     fi
 
     # Libs
@@ -88,16 +88,16 @@ function download_all {
     for LIB in ${LIBS[@]}; do
         LIBNAME=`basename ${LIB}`
         if [ ! -f ${LIBNAME} ]; then
+            echo "Downloading ${LIBNAME}"
             wget ${LIB} || return 1
         fi
         if [ ! -d `basename ${LIB} | cut -f 1 -d "."` ]; then
-            tar -xvf ${LIBNAME} || return 1
+            echo "Unpacking ${LIBNAME}"
+            tar -xf ${LIBNAME} || return 1
         fi
     done
 
-    #
     # Modules
-    #
 
     for i in ${MODULES[@]}; do
         MNAME=`basename $i`
@@ -113,13 +113,7 @@ function download_all {
 
 
 function build_nginx {
-    cd $TEMPDIR
-
-    #
-    # Configure
-    #
-
-    cd nginx-${NGINX_VERSION}
+    cd $TEMPDIR/nginx-${NGINX_VERSION}
 
     CMD="./configure \
         --prefix=/usr/share/nginx \
@@ -187,8 +181,9 @@ function post_install {
 }
 
 function add_security {
-    if [ ! -f /etc/ssl/certs/dhparam.pem ]; then
-        openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+    dhparam_path="/etc/ssl/certs/dhparam.pem"
+    if [ ! -f $dhparam_path ]; then
+        openssl dhparam -out $dhparam_path 4096
     fi
     cp nginx/ssl.conf /etc/nginx/ssl.conf
 }
@@ -196,8 +191,9 @@ function add_security {
 function start_nginx {
     echo "(re)starting NGINX service..."
     systemctl daemon-reload
-    service nginx stop
-    service nginx start
+    systemctl enable nginx
+    systemctl stop nginx
+    systemctl start nginx || error_exit
 }
 
 
