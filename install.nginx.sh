@@ -15,39 +15,37 @@
 ##############################################################################
 ## COMMON UTILS
 
-BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-TEMPDIR=/tmp/$(basename "${BASH_SOURCE[0]}")
+base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+temp_dir=/tmp/$(basename "${BASH_SOURCE[0]}")
 
 function error_exit {
     printf "\n\033[0;31mInstallation failed\033[0m\n"
-    cd $BASEDIR
+    cd $base_dir
     exit 1
 }
 
-
 function finished {
     printf "\n\033[0;92mInstallation completed\033[0m\n"
-    cd $BASEDIR
+    cd $base_dir
     exit 0
 }
-
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
    error_exit
 fi
 
-if [ ! -d $TEMPDIR ]; then
-    mkdir $TEMPDIR || error_exit
+if [ ! -d $temp_dir ]; then
+    mkdir $temp_dir || error_exit
 fi
 
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.13.0"
+NGINX_VERSION="1.13.1"
 ZLIB_VERSION="1.2.11"
-PCRE_VERSION="8.39"
-OPENSSL_VERSION="1.1.0e"
+PCRE_VERSION="8.40"
+OPENSSL_VERSION="1.1.0f"
 
 MODULES=(
     "https://github.com/martastain/nginx-rtmp-module"
@@ -72,50 +70,50 @@ function install_prerequisites {
 }
 
 function download_all {
-    cd $TEMPDIR
-    INSTALLER_NAME="nginx-${NGINX_VERSION}"
+    cd $temp_dir
+    installer_name="nginx-${NGINX_VERSION}"
 
-    if [ ! -f ${INSTALLER_NAME}.tar.gz ]; then
-        wget "http://nginx.org/download/${INSTALLER_NAME}.tar.gz" || return 1
+    if [ ! -f ${installer_name}.tar.gz ]; then
+        wget "http://nginx.org/download/${installer_name}.tar.gz" || return 1
     fi
-    if [ ! -d ${INSTALLER_NAME} ]; then
-        echo "Unpacking ${INSTALLER_NAME}"
-        tar -xf ${INSTALLER_NAME}.tar.gz || return 1
+    if [ ! -d ${installer_name} ]; then
+        echo "Unpacking ${installer_name}"
+        tar -xf ${installer_name}.tar.gz || return 1
     fi
 
     # Libs
 
-    for LIB in ${LIBS[@]}; do
-        LIBNAME=`basename ${LIB}`
-        if [ ! -f ${LIBNAME} ]; then
-            echo "Downloading ${LIBNAME}"
-            wget ${LIB} || return 1
+    for lib_url in ${LIBS[@]}; do
+        lib_name=`basename ${lib_url}`
+        if [ ! -f ${lib_name} ]; then
+            echo "Downloading ${lib_name}"
+            wget ${lib_url} || return 1
         fi
-        if [ ! -d `basename ${LIB} | cut -f 1 -d "."` ]; then
-            echo "Unpacking ${LIBNAME}"
-            tar -xf ${LIBNAME} || return 1
+        if [ ! -d `basename ${lib_url} | cut -f 1 -d "."` ]; then
+            echo "Unpacking ${lib_name}"
+            tar -xf ${lib_name} || return 1
         fi
     done
 
     # Modules
 
-    for i in ${MODULES[@]}; do
-        MNAME=`basename $i`
-        if [ -d $MNAME ]; then
-            cd $MNAME
+    for module_url in ${MODULES[@]}; do
+        module_name=$(basename $module_url)
+        if [ -d ${module_name} ]; then
+            cd ${module_name}
             git pull || return 1
             cd ..
         else
-            git clone $i || return 1
+            git clone ${module_url} || return 1
         fi
     done
 }
 
 
 function build_nginx {
-    cd $TEMPDIR/nginx-${NGINX_VERSION}
+    cd $temp_dir/nginx-${NGINX_VERSION}
 
-    CMD="./configure \
+    cmd="./configure \
         --prefix=/usr/share/nginx \
         --sbin-path=/usr/sbin/nginx \
         --conf-path=/etc/nginx/nginx.conf \
@@ -126,10 +124,10 @@ function build_nginx {
         --user=www-data \
         --group=www-data"
 
-    CMD=$CMD" \
-        --with-pcre=$TEMPDIR/pcre-$PCRE_VERSION \
-        --with-zlib=$TEMPDIR/zlib-$ZLIB_VERSION \
-        --with-openssl=$TEMPDIR/openssl-$OPENSSL_VERSION \
+    cmd="$cmd \
+        --with-pcre=$temp_dir/pcre-$PCRE_VERSION \
+        --with-zlib=$temp_dir/zlib-$ZLIB_VERSION \
+        --with-openssl=$temp_dir/openssl-$OPENSSL_VERSION \
         --with-http_stub_status_module \
         --with-http_flv_module \
         --with-http_mp4_module \
@@ -143,12 +141,12 @@ function build_nginx {
         --without-mail_smtp_module \
         --without-mail_imap_module"
 
-    for i in ${MODULES[@]}; do
-       MNAME=`basename $i`
-       CMD=$CMD" --add-module=$TEMPDIR/$MNAME"
+    for module_url in ${MODULES[@]}; do
+         module_name=$(basename ${module_url})
+         cmd="$cmd --add-module=$temp_dir/${module_name}"
     done
 
-    $CMD || return 1
+    $cmd || return 1
     make && make install || return 1
 
     return 0
@@ -156,22 +154,22 @@ function build_nginx {
 
 function post_install {
     echo "Running post-install configuration..."
-    cd $BASEDIR
+    cd $base_dir
 
-    HTMLDIR="/var/www"
-    DEFAULTDIR="$HTMLDIR/default"
+    html_dir="/var/www"
+    default_dir="$html_dir/default"
 
-    if [ ! -d $HTMLDIR ]; then
-        mkdir $HTMLDIR
+    if [ ! -d $html_dir ]; then
+        mkdir $html_dir
     fi
 
-    if [ ! -d $DEFAULTDIR ]; then
-        mkdir $DEFAULTDIR
-        cp nginx/http.conf $DEFAULTDIR/http.conf
-        cp nginx/index.html $DEFAULTDIR/index.html
+    if [ ! -d $default_dir ]; then
+        mkdir $default_dir
+        cp nginx/http.conf $default_dir/http.conf
+        cp nginx/index.html $default_dir/index.html
     fi
 
-    cd $BASEDIR
+    cd $base_dir
     cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
     touch /etc/nginx/cache.conf || return 1
     touch /etc/nginx/ssl.conf || return 1
