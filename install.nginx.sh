@@ -42,15 +42,15 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.13.1"
+NGINX_VERSION="1.13.4"
 ZLIB_VERSION="1.2.11"
-PCRE_VERSION="8.40"
+PCRE_VERSION="8.41"
 OPENSSL_VERSION="1.1.0f"
 
 MODULES=(
     "https://github.com/martastain/nginx-rtmp-module"
-    "https://github.com/openresty/headers-more-nginx-module"
     "https://github.com/wandenberg/nginx-push-stream-module"
+    "https://github.com/openresty/headers-more-nginx-module"
 )
 
 LIBS=(
@@ -128,6 +128,7 @@ function build_nginx {
         --with-pcre=$temp_dir/pcre-$PCRE_VERSION \
         --with-zlib=$temp_dir/zlib-$ZLIB_VERSION \
         --with-openssl=$temp_dir/openssl-$OPENSSL_VERSION \
+        --with-ipv6 \
         --with-http_stub_status_module \
         --with-http_flv_module \
         --with-http_mp4_module \
