@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="3.3.2"
+FFMPEG_VERSION="3.3.3"
 NVENC_VERSION="7.1.9"
 
 REPOS=(
