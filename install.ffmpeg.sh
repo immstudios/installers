@@ -55,13 +55,10 @@ if [ -z "$PREFIX" ]; then
     PREFIX="/usr/local"
 fi
 
-
-HAS_NVIDIA=`hash nvidia-smi && echo 1|| echo 0`
+HAS_NVIDIA=`hash nvidia-smi 2> /dev/null && echo 1 || echo ""`
 if [ $HAS_NVIDIA ] ; then
     nvidia_params="--enable-nvenc --enable-cuda --enable-cuvid --enable-libnpp"
 fi
-
-
 
 function install_prerequisites {
     apt -y install\
