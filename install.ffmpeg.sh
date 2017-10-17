@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="3.3.4"
+FFMPEG_VERSION="3.4"
 NVENC_VERSION="7.1.9"
 
 REPOS=(
@@ -92,6 +92,7 @@ function install_prerequisites {
         libssh-dev \
         libv4l-dev \
         libwebp-dev \
+        libzmq5 libzmq5-dev \
         libzvbi-dev || exit 1
 
     if [ $HAS_NVIDIA ] ; then
@@ -190,6 +191,7 @@ function install_ffmpeg {
     --enable-openssl         ` # needed for https support if gnutls is not used` \
     --enable-libssh          ` # enable SFTP protocol via libssh` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
+    --enable-libzmq \
     $nvidia_params \
     || return 1
 
