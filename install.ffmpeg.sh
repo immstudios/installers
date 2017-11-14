@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="3.3.3"
+FFMPEG_VERSION="3.4"
 NVENC_VERSION="7.1.9"
 
 REPOS=(
@@ -55,13 +55,10 @@ if [ -z "$PREFIX" ]; then
     PREFIX="/usr/local"
 fi
 
-
 HAS_NVIDIA=`hash nvidia-smi && echo 1|| echo 0`
 if [ $HAS_NVIDIA ] ; then
-    nvidia_params="--enable-nvenc --enable-cuda --enable-cuvid --enable-libnpp"
+    nvidia_params="--enable-nvenc --enable-cuda --enable-cuvid"
 fi
-
-
 
 function install_prerequisites {
     apt -y install\
@@ -96,13 +93,6 @@ function install_prerequisites {
         libv4l-dev \
         libwebp-dev \
         libzvbi-dev || exit 1
-
-    if [ $HAS_NVIDIA ] ; then
-        apt install -y \
-            nvidia-cuda-dev \
-            nvidia-cuda-toolkit \
-            libnvidia-encode1
-    fi
 }
 
 
@@ -152,6 +142,16 @@ function install_bmd {
     cp bmd-sdk/* /usr/include/ || return 1
     return 0
 }
+
+function install_ndi {
+    cd ${temp_dir}
+    ndi_file="InstallNDISDK_v3_Linux.sh"
+    wget http://repo.imm.cz/$ndi_file
+    chmod +x $ndi_file
+    ./$ndi_file
+    return 0
+}
+
 
 function install_ffmpeg {
     cd ${temp_dir}
@@ -206,13 +206,13 @@ function install_ffmpeg {
 
 ################################################
 
-
 install_prerequisites || error_exit
 download_repos || error_exit
 
 install_fdk_aac || error_exit
 install_nvenc || error_exit
 install_bmd || error_exit
+#install_ndi || error_exit #TODO
 install_ffmpeg || error_exit
 
 finished
