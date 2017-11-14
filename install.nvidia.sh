@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 - 2017 imm studios, z.s.
+# Copyright (c) 2015 - 2017  imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -15,58 +15,87 @@
 ##############################################################################
 ## COMMON UTILS
 
-BASEDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-TEMPDIR=/tmp/$(basename "${BASH_SOURCE[0]}")
+base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+temp_dir=/tmp/$(basename "${BASH_SOURCE[0]}")
 
 function error_exit {
     printf "\n\033[0;31mInstallation failed\033[0m\n"
-    cd $BASEDIR
+    cd ${base_dir}
     exit 1
 }
 
 function finished {
     printf "\n\033[0;92mInstallation completed\033[0m\n"
-    cd $BASEDIR
+    cd ${base_dir}
     exit 0
 }
-
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
    error_exit
 fi
 
-if [ ! -d $TEMPDIR ]; then
-    mkdir $TEMPDIR || error_exit
+if [ ! -d ${temp_dir} ]; then
+    mkdir ${temp_dir} || error_exit
 fi
 
 ## COMMON UTILS
 ##############################################################################
 
-DRIVER_VERSION="375.39"
+cuda_version="9.0"
+cuda_build="176"
+driver_version="384.81"
 
-function install_prerequisites {
-    apt install linux-headers-$(uname -r|sed 's,[^-]*-[^-]*-,,')
-}
 
-function install_driver {
-    cd $TEMPDIR
-    SCRIPT_NAME="NVIDIA-Linux-x86_64-$DRIVER_VERSION.run"
-    if [ ! -f $SCRIPT_NAME ]; then
-        wget http://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/$SCRIPT_NAME
+function nvidia_uninstall {
+    HAS_NVIDIA_UNINSTALL=`hash nvidia-uninstall 2> /dev/null && echo 1 || echo ""`
+    if [ $HAS_NVIDIA_NVIDIA_UNINSTALL ] ; then
+        echo "Uninstalling previous nvidia driver"
+        nvidia-uninstall -s || return 1
+    else
+
+    if [ `aptitude search nvidia | grep ^i | wc -l` != 0 ]; then
+        echo "Jsou tam zbytky nvidie. Zkusime to odinstalovat";
+        apt remove --purge nvidia*
+        apt autoremove
+        if [ `aptitude search nvidia | grep ^i | wc -l` != 0 ]; then
+            echo
+            echo "Furt jsou tu zbytky nvidie. Zkus tyhle baliky vykopat rucne";
+            aptitude search nvidia | grep ^i
+            return 1
+        fi
+        echo ""
+        echo "nVidia uninstall finished. Reboot computer and run installer again"
+        return 1
     fi
-    chmod +x "$SCRIPT_NAME"
-
-    ./$SCRIPT_NAME -q -a -n -X -s
-
-    # That's all there is to it.
-    # The -q option means quiet, the -a option means accept licence,
-    # the -n action suppresses questions, the -X option updates the xorg.conf file
-    # and the -s option disables the ncurses interface.
-
     return 0
 }
 
-install_prerequisites || error_exit
-install_driver || error_exit
 
+function nvidia_cuda_install {
+    cd ${temp_dir}
+
+    # Smazeme stare error logy
+    rm /tmp/cuda_install*
+
+    installer_file="cuda_${cuda_version}.${cuda_build}_${driver_version}_linux-run"
+    if [ ! -f ${installer_file} ]; then
+        wget https://developer.nvidia.com/compute/cuda/${cuda_version}/Prod/local_installers/${installer_file}
+    fi
+    chmod +x ${installer_file}
+    ./${installer_file} --silent --driver --toolkit --run-nvidia-xconfig || cat /tmp/cuda_install*
+
+    # Cuda instalator kasle na navratove kody, takze uspesnost instalace
+    # otestujeme pritomnosti programu nvidia-smi
+
+    HAS_NVIDIA=`hash nvidia-smi 2> /dev/null && echo 1 || echo ""`
+    if [ $HAS_NVIDIA ] ; then
+        return 0
+    else
+        cat /tmp/cuda_install*
+        return 1
+    fi
+}
+
+nvidia_uninstall || error_exit
+nvidia_cuda_install || error_exit
