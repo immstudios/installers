@@ -51,13 +51,15 @@ REPOS=(
     "https://github.com/martastain/bmd-sdk"
 )
 
+extra_flags=""
+
 if [ -z "$PREFIX" ]; then
     PREFIX="/usr/local"
 fi
 
 HAS_NVIDIA=`hash nvidia-smi 2> /dev/null && echo 1 || echo ""`
 if [ $HAS_NVIDIA ] ; then
-    nvidia_params="--enable-nvenc --enable-cuda --enable-cuvid"
+    extra_flags="$extra_flags --enable-nvenc --enable-cuda --enable-cuvid"
 fi
 
 function install_prerequisites {
@@ -146,9 +148,35 @@ function install_bmd {
 function install_ndi {
     cd ${temp_dir}
     ndi_file="InstallNDISDK_v3_Linux.sh"
-    wget http://repo.imm.cz/$ndi_file
+    ndi_dir="NDI SDK for Linux"
+    if [ ! -f $ndi_file ]; then
+        wget http://repo.imm.cz/$ndi_file
+    fi
     chmod +x $ndi_file
-    ./$ndi_file
+    if [ ! -d "$ndi_dir" ]; then
+        ./$ndi_file
+    fi
+    cp "$ndi_dir/include/"* /usr/include
+    cp "$ndi_dir/lib/x86_64-linux-gnu/"* /usr/lib
+    extra_flags="$extra_flags --enable-libndi_newtek"
+    return 0
+}
+
+function install_vmaf {
+    cd ${temp_dir}
+    apt install -y pkg-config gfortran libhdf5-dev libfreetype6-dev liblapack-dev
+    apt install -y python-pip
+    python -p pip install --upgrade pip
+    pip install --upgrade numpy scipy matplotlib pandas scikit-learn h5py
+    if [ ! -d vmaf ]; then
+        git clone https://github.com/Netflix/vmaf
+    else
+        cd vmaf && git pull && cd ..
+    fi
+    cd vmaf
+    make || return 1
+    make install || return 1
+    extra_flags="$extra_flags --enable-libvmaf"
     return 0
 }
 
@@ -193,7 +221,7 @@ function install_ffmpeg {
     --enable-openssl         ` # needed for https support if gnutls is not used` \
     --enable-libssh          ` # enable SFTP protocol via libssh` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
-    $nvidia_params \
+    $extra_flags \
     || return 1
 
     echo "Making ffmpeg"
@@ -212,7 +240,8 @@ download_repos || error_exit
 install_fdk_aac || error_exit
 install_nvenc || error_exit
 install_bmd || error_exit
-#install_ndi || error_exit #TODO
+install_ndi || error_exit
+#install_vmaf || error_exit
 install_ffmpeg || error_exit
 
 finished
