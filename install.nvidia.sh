@@ -47,14 +47,19 @@ cuda_build="176"
 driver_version="384.81"
 
 
+function install_prerequisites {
+    apt install -y \
+        linux-headers-$(uname -r) \
+        build-essential || return 1
+    return 0
+}
+
 function nvidia_uninstall {
     HAS_NVIDIA_UNINSTALL=`hash nvidia-uninstall 2> /dev/null && echo 1 || echo ""`
     if [ $HAS_NVIDIA_NVIDIA_UNINSTALL ] ; then
         echo "Uninstalling previous nvidia driver"
         nvidia-uninstall -s || return 1
-    else
-
-    if [ `aptitude search nvidia | grep ^i | wc -l` != 0 ]; then
+    elif [ `aptitude search nvidia | grep ^i | wc -l` != 0 ]; then
         echo "Jsou tam zbytky nvidie. Zkusime to odinstalovat";
         apt remove --purge nvidia*
         apt autoremove
@@ -97,5 +102,6 @@ function nvidia_cuda_install {
     fi
 }
 
+install_prerequisites || error_exit
 nvidia_uninstall || error_exit
 nvidia_cuda_install || error_exit
