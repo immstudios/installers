@@ -50,6 +50,7 @@ driver_version="384.81"
 function install_prerequisites {
     apt install -y \
         linux-headers-$(uname -r) \
+        ssl-cert \
         build-essential || return 1
     return 0
 }
