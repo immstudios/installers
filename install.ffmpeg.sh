@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="3.4.1"
+FFMPEG_VERSION="3.4.2"
 NVENC_VERSION="7.1.9"
 
 REPOS=(
@@ -89,8 +89,6 @@ function install_prerequisites {
         librtmp-dev \
         librtmp1 \
         libopus-dev \
-        librubberband-dev \
-        librubberband2 \
         libssh-dev \
         libv4l-dev \
         libwebp-dev \
@@ -207,7 +205,6 @@ function install_ffmpeg {
     --enable-libass          ` # enable libass subtitles rendering` \
     --enable-libfreetype     ` # enable libfreetype, needed for drawtext filter` \
     --enable-libfribidi      ` # enable libfribidi, improves drawtext filter` \
-    --enable-librubberband   ` # resample using librubberband` \
     --enable-libmp3lame      ` # enable MP3 encoding via libmp3lame` \
     --enable-libtwolame      ` # enable MP2 encoding via libtwolame` \
     --enable-libwebp         ` # enable WebP encoding via libwebp` \
