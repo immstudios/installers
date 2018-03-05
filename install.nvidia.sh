@@ -42,9 +42,9 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-cuda_version="9.0"
-cuda_build="176"
-driver_version="384.81"
+cuda_version="9.1"
+cuda_build="85"
+driver_version="387.26"
 
 
 function install_prerequisites {
@@ -82,9 +82,9 @@ function nvidia_cuda_install {
     cd ${temp_dir}
 
     # Smazeme stare error logy
-    rm /tmp/cuda_install*
+    rm /tmp/cuda_install* 2> /dev/null
 
-    installer_file="cuda_${cuda_version}.${cuda_build}_${driver_version}_linux-run"
+    installer_file="cuda_${cuda_version}.${cuda_build}_${driver_version}_linux"
     if [ ! -f ${installer_file} ]; then
         wget https://developer.nvidia.com/compute/cuda/${cuda_version}/Prod/local_installers/${installer_file}
     fi
