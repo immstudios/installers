@@ -44,7 +44,7 @@ fi
 ##############################################################################
 
 FFMPEG_VERSION="3.4.2"
-NVENC_VERSION="7.1.9"
+NVENC_VERSION="8.0.14"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
