@@ -51,7 +51,7 @@ REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
     "https://github.com/martastain/bmd-sdk"
     "https://github.com/mirror/x264"
-    "https://git.videolan.org/git/ffmpeg/nv-codec-headers.git"
+    "https://git.videolan.org/git/ffmpeg/nv-codec-headers"
 )
 
 extra_flags=""
@@ -141,6 +141,7 @@ function install_nvenc {
 function install_nvcodec {
     if [ $HAS_NVIDIA ]; then
         cd $temp_dir/nv-codec-headers
+        git checkout n8.0.14.1
         make || return 1
         make install || return 1
     fi
@@ -264,13 +265,13 @@ function install_ffmpeg {
 install_prerequisites || error_exit
 download_repos || error_exit
 
-install_nasm || error_exit
-install_x264 || error_exit
-install_fdk_aac || error_exit
-install_nvenc || error_exit
+#install_nasm || error_exit
+#install_x264 || error_exit
+#install_fdk_aac || error_exit
+#install_nvenc || error_exit
 install_nvcodec || error_exit
-install_bmd || error_exit
-install_ndi || error_exit
+#install_bmd || error_exit
+#install_ndi || error_exit
 
 install_ffmpeg || error_exit
 
