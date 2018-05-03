@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 - 2017  imm studios, z.s.
+# Copyright (c) 2015 - 2018  imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,12 +43,15 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="3.4.2"
+FFMPEG_VERSION="4.0"
 NVENC_VERSION="8.0.14"
+NASM_VERSION="2.13.03"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
     "https://github.com/martastain/bmd-sdk"
+    "https://github.com/mirror/x264"
+    "https://git.videolan.org/git/ffmpeg/nv-codec-headers.git"
 )
 
 extra_flags=""
@@ -82,14 +85,12 @@ function install_prerequisites {
         libfribidi0 \
         libass-dev \
         libfreetype6-dev \
-        libx264-dev \
         libx265-dev \
         libmp3lame-dev \
         libtwolame-dev \
         librtmp-dev \
         librtmp1 \
         libopus-dev \
-        libssh-dev \
         libv4l-dev \
         libwebp-dev \
         libzvbi-dev || exit 1
@@ -137,6 +138,15 @@ function install_nvenc {
     return 0
 }
 
+function install_nvcodec {
+    if [ $HAS_NVIDIA ]; then
+        cd $temp_dir/nv-codec-headers
+        make || return 1
+        make install || return 1
+    fi
+    return 0
+}
+
 function install_bmd {
     cd ${temp_dir}
     cp bmd-sdk/* /usr/include/ || return 1
@@ -160,6 +170,27 @@ function install_ndi {
     return 0
 }
 
+function install_nasm {
+    cd $temp_dir
+    wget https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.gz || return 1
+    tar -xf nasm-${NASM_VERSION}.tar.gz
+    cd nasm-${NASM_VERSION}
+    ./configure || return 1
+    make || return 1
+    make install || return 1
+    return 0
+}
+
+function install_x264 {
+    cd $temp_dir/x264
+    ./configure --enable-shared --bit-depth=all --chroma-format=all || return 1
+    make || return 1
+    make install || return 1
+    return 0
+}
+
+
+# Not used
 function install_vmaf {
     cd ${temp_dir}
     apt install -y pkg-config gfortran libhdf5-dev libfreetype6-dev liblapack-dev
@@ -216,7 +247,6 @@ function install_ffmpeg {
     --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
     --enable-librtmp         ` # enable LibRTMP` \
     --enable-openssl         ` # needed for https support if gnutls is not used` \
-    --enable-libssh          ` # enable SFTP protocol via libssh` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
     $extra_flags \
     || return 1
@@ -234,11 +264,14 @@ function install_ffmpeg {
 install_prerequisites || error_exit
 download_repos || error_exit
 
+install_nasm || error_exit
+install_x264 || error_exit
 install_fdk_aac || error_exit
 install_nvenc || error_exit
+install_nvcodec || error_exit
 install_bmd || error_exit
 install_ndi || error_exit
-#install_vmaf || error_exit
+
 install_ffmpeg || error_exit
 
 finished
