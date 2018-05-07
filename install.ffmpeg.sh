@@ -265,13 +265,13 @@ function install_ffmpeg {
 install_prerequisites || error_exit
 download_repos || error_exit
 
-#install_nasm || error_exit
-#install_x264 || error_exit
-#install_fdk_aac || error_exit
-#install_nvenc || error_exit
+install_nasm || error_exit
+install_x264 || error_exit
+install_fdk_aac || error_exit
+install_nvenc || error_exit
 install_nvcodec || error_exit
-#install_bmd || error_exit
-#install_ndi || error_exit
+install_bmd || error_exit
+install_ndi || error_exit
 
 install_ffmpeg || error_exit
 
