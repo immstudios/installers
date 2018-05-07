@@ -91,6 +91,7 @@ function install_prerequisites {
         librtmp-dev \
         librtmp1 \
         libopus-dev \
+        libssl-dev \
         libv4l-dev \
         libwebp-dev \
         libzvbi-dev || exit 1
@@ -103,6 +104,7 @@ function download_repos {
         MNAME=`basename $i`
         if [ -d $MNAME ]; then
             cd $MNAME
+            git checkout master || return 1
             git pull || return 1
             cd ..
         else
@@ -163,7 +165,8 @@ function install_ndi {
     fi
     chmod +x $ndi_file
     if [ ! -d "$ndi_dir" ]; then
-        ./$ndi_file
+        echo "Unpacking NDI"
+        yes | ./$ndi_file
     fi
     cp "$ndi_dir/include/"* /usr/include
     cp "$ndi_dir/lib/x86_64-linux-gnu/"* /usr/lib
