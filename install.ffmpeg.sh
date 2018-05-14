@@ -79,6 +79,8 @@ function install_prerequisites {
         pkg-config \
         libfftw3-dev \
         fontconfig \
+        ocl-icd-opencl-dev \
+        opencl-headers \
         libfontconfig1 \
         libfontconfig1-dev \
         libfribidi-dev \
@@ -252,6 +254,7 @@ function install_ffmpeg {
     --enable-librtmp         ` # enable LibRTMP` \
     --enable-openssl         ` # needed for https support if gnutls is not used` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
+    --enable-opencl \
     $extra_flags \
     || return 1
 
