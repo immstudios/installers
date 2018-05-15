@@ -237,7 +237,6 @@ function install_ffmpeg {
       --enable-shared \
       --enable-pic \
     \
-    --enable-avresample \
     --enable-fontconfig      ` # enable fontconfig, useful for drawtext filter` \
     --enable-libass          ` # enable libass subtitles rendering` \
     --enable-libfreetype     ` # enable libfreetype, needed for drawtext filter` \
@@ -254,6 +253,7 @@ function install_ffmpeg {
     --enable-librtmp         ` # enable LibRTMP` \
     --enable-openssl         ` # needed for https support if gnutls is not used` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
+    --enable-libndi_newtek   \
     --enable-opencl \
     $extra_flags \
     || return 1
@@ -270,7 +270,6 @@ function install_ffmpeg {
 
 install_prerequisites || error_exit
 download_repos || error_exit
-
 install_nasm || error_exit
 install_x264 || error_exit
 install_fdk_aac || error_exit
