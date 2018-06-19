@@ -76,6 +76,9 @@ function install_prerequisites {
         libtool \
         autoconf \
         automake \
+        avahi-daemon \
+        avahi-discover \
+        avahi-utils \
         pkg-config \
         libfftw3-dev \
         fontconfig \
