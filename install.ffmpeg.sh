@@ -43,8 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="4.0"
-NVENC_VERSION="8.0.14"
+FFMPEG_VERSION="4.0.1"
 NASM_VERSION="2.13.03"
 
 REPOS=(
@@ -132,6 +131,7 @@ function install_fdk_aac {
 function install_nvenc {
     if [ $HAS_NVIDIA ]; then
         cd ${temp_dir}
+        NVENC_VERSION="8.0.14"
         MODULE_NAME="Video_Codec_SDK_${NVENC_VERSION}"
         if [ ! -f ${MODULE_NAME}.zip ]; then
             wget "http://repo.imm.cz/${MODULE_NAME}.zip" || return 1
@@ -166,7 +166,7 @@ function install_ndi {
     ndi_file="InstallNDISDK_v3_Linux.sh"
     ndi_dir="NDI SDK for Linux"
     if [ ! -f $ndi_file ]; then
-        wget http://repo.imm.cz/$ndi_file
+        wget https://repo.imm.cz/$ndi_file
     fi
     chmod +x $ndi_file
     if [ ! -d "$ndi_dir" ]; then
@@ -276,7 +276,7 @@ download_repos || error_exit
 install_nasm || error_exit
 install_x264 || error_exit
 install_fdk_aac || error_exit
-install_nvenc || error_exit
+#install_nvenc || error_exit
 install_nvcodec || error_exit
 install_bmd || error_exit
 install_ndi || error_exit
