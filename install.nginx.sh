@@ -42,7 +42,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.14.0"
+NGINX_VERSION="1.15.0"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.42"
 OPENSSL_VERSION="1.1.0h"
@@ -66,6 +66,7 @@ function install_prerequisites {
         curl \
         libxml2 \
         libxml2-dev \
+        libgeoip-dev \
         libxslt-dev
 }
 
@@ -129,15 +130,18 @@ function build_nginx {
         --with-zlib=$temp_dir/zlib-$ZLIB_VERSION \
         --with-openssl=$temp_dir/openssl-$OPENSSL_VERSION \
         --with-ipv6 \
+        --with-http_ssl_module \
+        --with-http_v2_module \
+        --with-http_addition_module \
+        --with-http_xslt_module \
+        --with-http_geoip_module \
+        --with-http_sub_module \
         --with-http_stub_status_module \
         --with-http_flv_module \
         --with-http_mp4_module \
+        --with-http_auth_request_module \
         --with-http_random_index_module \
         --with-http_secure_link_module \
-        --with-http_ssl_module \
-        --with-http_sub_module \
-        --with-http_v2_module \
-        --with-http_xslt_module \
         --without-mail_pop3_module \
         --without-mail_smtp_module \
         --without-mail_imap_module"
