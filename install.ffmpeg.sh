@@ -249,7 +249,6 @@ function install_ffmpeg {
     --enable-libwebp         ` # enable WebP encoding via libwebp` \
     --enable-libx264         ` # enable H.264 encoding via x264` \
     --enable-libx265         ` # enable HEVC encoding via x265` \
-    --enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
     --enable-libopus         ` # enable Opus de/encoding via libopus` \
     --enable-libzvbi         ` # enable teletext support via libzvbi` \
     --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
@@ -269,13 +268,15 @@ function install_ffmpeg {
     return 0
 }
 
+#--enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
+
 ################################################
 
 install_prerequisites || error_exit
 download_repos || error_exit
 install_nasm || error_exit
 install_x264 || error_exit
-install_fdk_aac || error_exit
+#install_fdk_aac || error_exit
 #install_nvenc || error_exit
 install_nvcodec || error_exit
 install_bmd || error_exit
