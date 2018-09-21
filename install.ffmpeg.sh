@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="4.0.1"
+FFMPEG_VERSION="4.0.2"
 NASM_VERSION="2.13.03"
 
 REPOS=(
@@ -51,6 +51,7 @@ REPOS=(
     "https://github.com/martastain/bmd-sdk"
     "https://github.com/mirror/x264"
     "https://git.videolan.org/git/ffmpeg/nv-codec-headers"
+    "https://github.com/Haivision/srt"
 )
 
 extra_flags=""
@@ -65,6 +66,7 @@ if [ $HAS_NVIDIA ] ; then
 fi
 
 function install_prerequisites {
+    # bulid tools
     apt -y install\
         build-essential \
         unzip \
@@ -75,30 +77,43 @@ function install_prerequisites {
         libtool \
         autoconf \
         automake \
+        pkg-config \
+	tclsh \
+	|| exit 1
+
+    # network and security
+    apt -y install \
         avahi-daemon \
         avahi-discover \
         avahi-utils \
-        pkg-config \
+        libssl-dev \
         libfftw3-dev \
-        fontconfig \
         ocl-icd-opencl-dev \
         opencl-headers \
+	|| exit 1
+
+    # text rendering
+    apt -y install \
+        fontconfig \
         libfontconfig1 \
         libfontconfig1-dev \
         libfribidi-dev \
         libfribidi0 \
-        libass-dev \
         libfreetype6-dev \
+        libass-dev \
+	|| exit 1
+
+
+    # 3rd party codecs
+    apt -y install \
         libx265-dev \
         libmp3lame-dev \
         libtwolame-dev \
-        librtmp-dev \
-        librtmp1 \
         libopus-dev \
-        libssl-dev \
         libv4l-dev \
         libwebp-dev \
-        libzvbi-dev || exit 1
+        libzvbi-dev \
+	|| exit 1
 }
 
 
@@ -121,6 +136,7 @@ function download_repos {
 
 function install_fdk_aac {
     cd ${temp_dir}/fdk-aac
+    git checkout v0.1.6
     autoreconf -fiv || return 1
     ./configure --prefix=$PREFIX || return 1
     make || return 1
@@ -128,27 +144,10 @@ function install_fdk_aac {
     return 0
 }
 
-function install_nvenc {
-    if [ $HAS_NVIDIA ]; then
-        cd ${temp_dir}
-        NVENC_VERSION="8.0.14"
-        MODULE_NAME="Video_Codec_SDK_${NVENC_VERSION}"
-        if [ ! -f ${MODULE_NAME}.zip ]; then
-            wget "http://repo.imm.cz/${MODULE_NAME}.zip" || return 1
-        fi
-        if [ ! -d ${MODULE_NAME} ]; then
-            unzip ${MODULE_NAME}.zip || return 1
-        fi
-        cp -v ${MODULE_NAME}/Samples/common/inc/*.h /usr/include/
-        cp -rv ${MODULE_NAME}/Samples/common/inc/GL /usr/include/
-    fi
-    return 0
-}
-
 function install_nvcodec {
     if [ $HAS_NVIDIA ]; then
         cd $temp_dir/nv-codec-headers
-        git checkout n8.0.14.1
+#        git checkout n8.0.14.1
         make || return 1
         make install || return 1
     fi
@@ -195,6 +194,13 @@ function install_x264 {
     ./configure --enable-shared --bit-depth=all --chroma-format=all || return 1
     make || return 1
     make install || return 1
+    return 0
+}
+
+function install_libsrt {
+    cd $temp_dir/srt
+    ./configure || return 1
+    make || return 1
     return 0
 }
 
@@ -252,10 +258,11 @@ function install_ffmpeg {
     --enable-libopus         ` # enable Opus de/encoding via libopus` \
     --enable-libzvbi         ` # enable teletext support via libzvbi` \
     --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
-    --enable-librtmp         ` # enable LibRTMP` \
+    --enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
     --enable-openssl         ` # needed for https support if gnutls is not used` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
-    --enable-libndi_newtek   \
+    --enable-libsrt \
+    --enable-libndi_newtek \
     --enable-opencl \
     $extra_flags \
     || return 1
@@ -268,19 +275,18 @@ function install_ffmpeg {
     return 0
 }
 
-#--enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
 
 ################################################
 
 install_prerequisites || error_exit
 download_repos || error_exit
+install_libsrt || error_exit
 install_nasm || error_exit
 install_x264 || error_exit
-#install_fdk_aac || error_exit
-#install_nvenc || error_exit
 install_nvcodec || error_exit
 install_bmd || error_exit
 install_ndi || error_exit
+install_fdk_aac || error_exit
 
 install_ffmpeg || error_exit
 
