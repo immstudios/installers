@@ -237,8 +237,11 @@ function install_ffmpeg {
         rm -rf ${ffmpeg_base_name}
     fi
 
+    wget https://gist.githubusercontent.com/nxtreaming/defaf90d4a08fdda0a7b30440ddfbbaa/raw/d0a275c70166c6c19530a9a9e93385b4d07d523d/gistfile1.txt -O libsrt.patch
+
     tar -xf ${ffmpeg_base_name}.tar.bz2 || return 1
     cd ${ffmpeg_base_name}
+    git apply ../libsrt.patch
 
     ./configure --prefix=$PREFIX \
       --enable-nonfree \
