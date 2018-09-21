@@ -201,6 +201,7 @@ function install_libsrt {
     cd $temp_dir/srt
     ./configure || return 1
     make || return 1
+    make install || return 1
     return 0
 }
 
