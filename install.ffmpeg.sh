@@ -43,7 +43,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="4.0.2"
+FFMPEG_VERSION="4.1"
 NASM_VERSION="2.13.03"
 
 REPOS=(
@@ -116,7 +116,6 @@ function install_prerequisites {
 	|| exit 1
 }
 
-
 function download_repos {
     cd ${temp_dir}
     for i in ${REPOS[@]}; do
@@ -133,10 +132,8 @@ function download_repos {
     return 0
 }
 
-
 function install_fdk_aac {
     cd ${temp_dir}/fdk-aac
-    git checkout v0.1.6
     autoreconf -fiv || return 1
     ./configure --prefix=$PREFIX || return 1
     make || return 1
@@ -147,7 +144,6 @@ function install_fdk_aac {
 function install_nvcodec {
     if [ $HAS_NVIDIA ]; then
         cd $temp_dir/nv-codec-headers
-#        git checkout n8.0.14.1
         make || return 1
         make install || return 1
     fi
@@ -205,27 +201,6 @@ function install_libsrt {
     return 0
 }
 
-
-# Not used
-function install_vmaf {
-    cd ${temp_dir}
-    apt install -y pkg-config gfortran libhdf5-dev libfreetype6-dev liblapack-dev
-    apt install -y python-pip
-    python -p pip install --upgrade pip
-    pip install --upgrade numpy scipy matplotlib pandas scikit-learn h5py
-    if [ ! -d vmaf ]; then
-        git clone https://github.com/Netflix/vmaf
-    else
-        cd vmaf && git pull && cd ..
-    fi
-    cd vmaf
-    make || return 1
-    make install || return 1
-    extra_flags="$extra_flags --enable-libvmaf"
-    return 0
-}
-
-
 function install_ffmpeg {
     cd ${temp_dir}
     ffmpeg_base_name="ffmpeg-${FFMPEG_VERSION}"
@@ -237,11 +212,8 @@ function install_ffmpeg {
         rm -rf ${ffmpeg_base_name}
     fi
 
-    wget https://gist.githubusercontent.com/nxtreaming/defaf90d4a08fdda0a7b30440ddfbbaa/raw/d0a275c70166c6c19530a9a9e93385b4d07d523d/gistfile1.txt -O libsrt.patch
-
     tar -xf ${ffmpeg_base_name}.tar.bz2 || return 1
     cd ${ffmpeg_base_name}
-    git apply ../libsrt.patch
 
     ./configure --prefix=$PREFIX \
       --enable-nonfree \
