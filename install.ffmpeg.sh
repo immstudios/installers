@@ -43,8 +43,8 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="4.1"
-NASM_VERSION="2.13.03"
+FFMPEG_VERSION="4.1.1"
+NASM_VERSION="2.14.02"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
@@ -78,6 +78,7 @@ function install_prerequisites {
         autoconf \
         automake \
         pkg-config \
+        libxml2-dev \
 	tclsh \
 	|| exit 1
 
@@ -113,6 +114,7 @@ function install_prerequisites {
         libv4l-dev \
         libwebp-dev \
         libzvbi-dev \
+        librubberband-dev \
 	|| exit 1
 }
 
@@ -140,6 +142,7 @@ function install_fdk_aac {
     make install || return 1
     return 0
 }
+
 
 function install_nvcodec {
     if [ $HAS_NVIDIA ]; then
@@ -184,6 +187,7 @@ function install_nasm {
     make install || return 1
     return 0
 }
+
 
 function install_x264 {
     cd $temp_dir/x264
@@ -237,7 +241,9 @@ function install_ffmpeg {
     --enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
     --enable-openssl         ` # needed for https support if gnutls is not used` \
     --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
+    --enable-libxml2         ` # enable XML parsing needed for dash demuxing support` \
     --enable-libsrt \
+    --enable-librubberband \
     --enable-libndi_newtek \
     --enable-opencl \
     $extra_flags \
@@ -263,7 +269,6 @@ install_nvcodec || error_exit
 install_bmd || error_exit
 install_ndi || error_exit
 install_fdk_aac || error_exit
-
 install_ffmpeg || error_exit
 
 finished
