@@ -42,10 +42,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.15.0"
+NGINX_VERSION="1.15.8"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.42"
-OPENSSL_VERSION="1.1.0h"
+OPENSSL_VERSION="1.1.1a"
 
 MODULES=(
     "https://github.com/martastain/nginx-rtmp-module"

@@ -43,11 +43,6 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-YASM_VERSION="1.3.0"
-FFMPEG_VERSION="3.0"
-VPX_VERSION="1.5.0"
-OPUS_VERSION="1.1.2"
-
 REPOS=(
     "https://github.com/mltframework/mlt"
 )
@@ -56,17 +51,17 @@ if [ -z "$PREFIX" ]; then
     PREFIX="/usr/local"
 fi
 
-
 function install_prerequisites {
      apt-get -y install \
         libjack-dev \
         libmovit-dev \
-        sox libsox-dev \
+        sox \
+        libsox-dev \
         librtaudio-dev \
+        libsamplerate-dev \
         libxml2-dev \
         || exit 1
 }
-
 
 function download_repos {
     cd $TEMPDIR
@@ -83,13 +78,17 @@ function download_repos {
     return 0
 }
 
-
-
 function install_mlt {
     cd $TEMPDIR/mlt
     ./configure --prefix=$PREFIX \
         --enable-gpl \
+        --enable-gpl \
         --enable-shared \
+        --disable-gtk2 \
+        --disable-kdenlive \
+        --disable-opengl \
+        --disable-sdl \
+        --disable-sdl2 \
         || return 1
     make || return 1
     make install || return 1
