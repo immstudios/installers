@@ -50,7 +50,6 @@ REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
     "https://github.com/martastain/bmd-sdk"
     "https://github.com/mirror/x264"
-    "https://git.videolan.org/git/ffmpeg/nv-codec-headers"
     "https://github.com/Haivision/srt"
 )
 
@@ -146,7 +145,13 @@ function install_fdk_aac {
 
 function install_nvcodec {
     if [ $HAS_NVIDIA ]; then
-        cd $temp_dir/nv-codec-headers
+	cd $temp_dir
+	if [ -d nv-codec-headers ]; then
+	    rm -rf nv-codec-headers
+	fi
+        git clone "https://git.videolan.org/git/ffmpeg/nv-codec-headers"
+        cd nv-codec-headers
+	git checkout n8.2.15.8
         make || return 1
         make install || return 1
     fi
