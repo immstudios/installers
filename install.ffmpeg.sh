@@ -30,7 +30,6 @@ function finished {
     exit 0
 }
 
-
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
    error_exit
@@ -48,20 +47,16 @@ NASM_VERSION="2.14.02"
 
 REPOS=(
     "https://github.com/mstorsjo/fdk-aac"
-    "https://github.com/martastain/bmd-sdk"
     "https://github.com/mirror/x264"
     "https://github.com/Haivision/srt"
+    "https://github.com/stoth68000/libklvanc"
+    "https://github.com/martastain/bmd-sdk"
 )
 
 extra_flags=""
 
 if [ -z "$PREFIX" ]; then
     PREFIX="/usr/local"
-fi
-
-HAS_NVIDIA=`hash nvidia-smi 2> /dev/null && echo 1 || echo ""`
-if [ $HAS_NVIDIA ] ; then
-    extra_flags="$extra_flags --enable-nvenc --enable-cuda --enable-cuvid"
 fi
 
 function install_prerequisites {
@@ -103,7 +98,6 @@ function install_prerequisites {
         libass-dev \
 	|| exit 1
 
-
     # 3rd party codecs
     apt -y install \
         libx265-dev \
@@ -133,27 +127,48 @@ function download_repos {
     return 0
 }
 
+function install_nasm {
+    cd $temp_dir
+    nasm_name=nasm-${NASM_VERSION}
+    if [ -f ${nasm_name}.tar.gz ]; then
+        rm ${nasm_name}.tar.gz
+    fi
+    wget https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/${nasm_name}.tar.gz || return 1
+    tar -xf ${nasm_name}.tar.gz
+    cd ${nasm_name}
+    ./configure || return 1
+    make || return 1
+    make install || return 1
+    return 0
+}
+
+#
+# 3rd party libraries
+#
+
 function install_fdk_aac {
     cd ${temp_dir}/fdk-aac
     autoreconf -fiv || return 1
     ./configure --prefix=$PREFIX || return 1
     make || return 1
     make install || return 1
+    extra_flags="$extra_flags --enable-libfdk-aac"
     return 0
 }
 
 
 function install_nvcodec {
-    if [ $HAS_NVIDIA ]; then
-	cd $temp_dir
-	if [ -d nv-codec-headers ]; then
-	    rm -rf nv-codec-headers
-	fi
+    HAS_NVIDIA=`hash nvidia-smi 2> /dev/null && echo 1 || echo ""`
+    if [ $HAS_NVIDIA ] ; then
+        cd $temp_dir
+        if [ -d nv-codec-headers ]; then
+            rm -rf nv-codec-headers
+        fi
         git clone "https://git.videolan.org/git/ffmpeg/nv-codec-headers"
         cd nv-codec-headers
-	git checkout n8.2.15.8
         make || return 1
         make install || return 1
+        extra_flags="$extra_flags --enable-nvenc --enable-cuda --enable-cuvid"
     fi
     return 0
 }
@@ -161,6 +176,7 @@ function install_nvcodec {
 function install_bmd {
     cd ${temp_dir}
     cp bmd-sdk/* /usr/include/ || return 1
+    extra_flags="$extra_flags --enable-decklink"
     return 0
 }
 
@@ -182,23 +198,12 @@ function install_ndi {
     return 0
 }
 
-function install_nasm {
-    cd $temp_dir
-    wget https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.gz || return 1
-    tar -xf nasm-${NASM_VERSION}.tar.gz
-    cd nasm-${NASM_VERSION}
-    ./configure || return 1
-    make || return 1
-    make install || return 1
-    return 0
-}
-
-
 function install_x264 {
     cd $temp_dir/x264
     ./configure --enable-shared --bit-depth=all --chroma-format=all || return 1
     make || return 1
     make install || return 1
+    extra_flags="$extra_flags --enable-libx264"
     return 0
 }
 
@@ -207,8 +212,23 @@ function install_libsrt {
     ./configure || return 1
     make || return 1
     make install || return 1
+    extra_flags="$extra_flags --enable-libsrt"
     return 0
 }
+
+function install_libklvanc {
+    cd $temp_dir/libklvanc
+    ./autogen.sh --build || return 1
+    ./configure || return 1
+    make || return 1
+    make install || return 1
+    extra_flags="$extra_flags --enable-libklvanc"
+    return 0
+}
+
+#
+# Install FFmpeg
+#
 
 function install_ffmpeg {
     cd ${temp_dir}
@@ -238,18 +258,13 @@ function install_ffmpeg {
     --enable-libmp3lame      ` # enable MP3 encoding via libmp3lame` \
     --enable-libtwolame      ` # enable MP2 encoding via libtwolame` \
     --enable-libwebp         ` # enable WebP encoding via libwebp` \
-    --enable-libx264         ` # enable H.264 encoding via x264` \
     --enable-libx265         ` # enable HEVC encoding via x265` \
     --enable-libopus         ` # enable Opus de/encoding via libopus` \
     --enable-libzvbi         ` # enable teletext support via libzvbi` \
     --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
-    --enable-libfdk-aac      ` # enable AAC de/encoding via libfdk-aac` \
     --enable-openssl         ` # needed for https support if gnutls is not used` \
-    --enable-decklink        ` # enable Blackmagic DeckLink I/O support` \
     --enable-libxml2         ` # enable XML parsing needed for dash demuxing support` \
-    --enable-libsrt \
     --enable-librubberband \
-    --enable-libndi_newtek \
     --enable-opencl \
     $extra_flags \
     || return 1
@@ -267,6 +282,7 @@ function install_ffmpeg {
 
 install_prerequisites || error_exit
 download_repos || error_exit
+install_libklvanc || error_exit
 install_libsrt || error_exit
 install_nasm || error_exit
 install_x264 || error_exit
