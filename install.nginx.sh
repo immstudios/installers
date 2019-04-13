@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 - 2018 imm studios, z.s.
+# Copyright (c) 2015 - 2019 imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -42,10 +42,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.15.8"
+NGINX_VERSION="1.15.10"
 ZLIB_VERSION="1.2.11"
-PCRE_VERSION="8.42"
-OPENSSL_VERSION="1.1.1a"
+PCRE_VERSION="8.43"
+OPENSSL_VERSION="1.1.1b"
 
 MODULES=(
     "https://github.com/martastain/nginx-rtmp-module"
