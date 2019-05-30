@@ -42,7 +42,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="4.1.1"
+FFMPEG_VERSION="4.1.3"
 NASM_VERSION="2.14.02"
 
 REPOS=(
@@ -184,16 +184,32 @@ function install_ndi {
     cd ${temp_dir}
     ndi_file="InstallNDISDK_v3_Linux.sh"
     ndi_dir="NDI SDK for Linux"
+
     if [ ! -f $ndi_file ]; then
         wget https://repo.imm.cz/$ndi_file
     fi
-    chmod +x $ndi_file
+
     if [ ! -d "$ndi_dir" ]; then
-        echo "Unpacking NDI"
-        yes | ./$ndi_file
+        ARCHIVE=`awk '/^__NDI_ARCHIVE_BEGIN__/ { print NR+1; exit 0; }' "$ndi_file"`
+        tail -n+$ARCHIVE "$ndi_file" | tar xvz
     fi
+
+    libname=$(find "$ndi_dir/lib/x86_64-linux-gnu/" -type f)
+    libbase=$(basename "$libname")
+
     cp "$ndi_dir/include/"* /usr/include
-    cp "$ndi_dir/lib/x86_64-linux-gnu/"* /usr/lib
+    cp "$libname" /usr/lib
+    links=(
+        /usr/lib/$(echo "$libbase" | cut -d . -f -2)
+        /usr/lib/$(echo "$libbase" | cut -d . -f -3)
+    )
+    for link in ${links[@]}; do
+        if [ -e $link ]; then
+            rm $link
+        fi
+        ln -s /usr/lib/$libbase $link
+    done
+
     extra_flags="$extra_flags --enable-libndi_newtek"
     return 0
 }
