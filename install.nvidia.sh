@@ -43,8 +43,8 @@ fi
 ##############################################################################
 
 cuda_version="10.1"
-cuda_build="105"
-driver_version="418.39"
+cuda_build="168"
+driver_version="418.67"
 
 
 function install_prerequisites {
