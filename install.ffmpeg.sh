@@ -42,7 +42,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="4.1.3"
+FFMPEG_VERSION="4.1.4"
 NASM_VERSION="2.14.02"
 
 REPOS=(
@@ -65,7 +65,6 @@ function install_prerequisites {
         build-essential \
         unzip \
         cmake \
-        checkinstall \
         yasm \
         git \
         libtool \
