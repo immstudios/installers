@@ -259,6 +259,9 @@ function install_ffmpeg {
     tar -xf ${ffmpeg_base_name}.tar.bz2 || return 1
     cd ${ffmpeg_base_name}
 
+    # Patch for decklink SDK 11
+    cp ${base_dir}/ffmpeg/decklink/* libavdevice/
+
     ./configure --prefix=$PREFIX \
       --enable-nonfree \
       --enable-gpl \
