@@ -98,7 +98,7 @@ function nvidia_cuda_install {
     if [ $HAS_NVIDIA ] ; then
         return 0
     else
-        cat /var/log/cuda_install*
+        cat /var/log/cuda-install*
         return 1
     fi
 }
