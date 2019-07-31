@@ -14,9 +14,9 @@ Notes:
 
 Available options:
 
-    - `--with-rtmp`
-    - `--with-kaltura`
-    - `--with-push-stream`
-    - `--with-upload`
+ - `--with-rtmp`
+ - `--with-kaltura`
+ - `--with-push-stream`
+ - `--with-upload`
 
 ## nVidia
