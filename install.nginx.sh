@@ -42,16 +42,67 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.17.1"
+NGINX_VERSION="1.17.2"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.43"
 OPENSSL_VERSION="1.1.1c"
 
 MODULES=(
-    "https://github.com/martastain/nginx-rtmp-module"
-    "https://github.com/wandenberg/nginx-push-stream-module"
+    "https://github.com/openresty/echo-nginx-module"
     "https://github.com/openresty/headers-more-nginx-module"
+    "https://github.com/slact/nchan"
 )
+
+echo "" > $temp_dir/rtmp.conf
+echo "" > $temp_dir/http.conf
+
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        --with-rtmp)
+            MODULES+=("https://github.com/martastain/nginx-rtmp-module")
+
+            echo "rtmp {" >> $temp_dir/rtmp.conf
+            echo "    server {" >> $temp_dir/rtmp.conf
+            echo "        listen 1935;" >> $temp_dir/rtmp.conf
+            echo "        chunk_size 4000;" >> $temp_dir/rtmp.conf
+            echo "        include /var/www/*/rtmp.conf;" >> $temp_dir/rtmp.conf
+            echo "    }" >> $temp_dir/rtmp.conf
+            echo "}" >> $temp_dir/rtmp.conf
+            ;;
+
+        --with-kaltura)
+            MODULES+=("https://github.com/kaltura/nginx-vod-module")
+            echo "vod_metadata_cache              metadata_cache   512m;" >> $temp_dir/http.conf
+            echo "vod_response_cache              response_cache   64m;" >> $temp_dir/http.conf
+            echo "vod_mapping_cache               mapping_cache    64m;" >> $temp_dir/http.conf
+            echo "vod_max_mapping_response_size                    4k;" >> $temp_dir/http.conf
+            ;;
+
+        --with-push-stream)
+            MODULES+=("https://github.com/wandenberg/nginx-push-stream-module")
+            echo "push_stream_shared_memory_size      64M;" >> $temp_dir/http.conf
+            ;;
+
+        --with-upload)
+            MODULES+=("https://github.com/fdintino/nginx-upload-module")
+            ;;
+
+        *)
+            echo "Unrecognized option '$key'. Ignoring."
+        ;;
+    esac
+    shift
+done
+
+echo ""
+echo "Following modules are going to be installed:"
+echo ""
+for m in ${MODULES[@]}; do
+    echo " - $(basename $m)"
+done
+echo ""
+
 
 LIBS=(
     "http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
@@ -102,7 +153,7 @@ function download_all {
         module_name=$(basename $module_url)
         if [ -d ${module_name} ]; then
             cd ${module_name}
-            git pull || return 1
+#            git pull || return 1
             cd ..
         else
             git clone ${module_url} || return 1
@@ -147,8 +198,8 @@ function build_nginx {
         --without-mail_imap_module"
 
     for module_url in ${MODULES[@]}; do
-         module_name=$(basename ${module_url})
-         cmd="$cmd --add-module=$temp_dir/${module_name}"
+        module_name=$(basename ${module_url})
+        cmd="$cmd --add-module=$temp_dir/${module_name}"
     done
 
     $cmd || return 1
@@ -176,6 +227,8 @@ function post_install {
 
     cd $base_dir
     cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
+    cp $temp_dir/http.conf /etc/nginx/http.conf || return 1
+    cp $temp_dir/rtmp.conf /etc/nginx/rtmp.conf || return 1
     touch /etc/nginx/cache.conf || return 1
     touch /etc/nginx/ssl.conf || return 1
     cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
