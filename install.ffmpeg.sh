@@ -42,7 +42,6 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-FFMPEG_VERSION="4.1.4"
 NASM_VERSION="2.14.02"
 
 REPOS=(
@@ -51,6 +50,7 @@ REPOS=(
     "https://github.com/Haivision/srt"
     "https://github.com/stoth68000/libklvanc"
     "https://github.com/martastain/bmd-sdk"
+    "https://github.com/immstudios/ffmpeg"
 )
 
 extra_flags=""
@@ -246,21 +246,7 @@ function install_libklvanc {
 #
 
 function install_ffmpeg {
-    cd ${temp_dir}
-    ffmpeg_base_name="ffmpeg-${FFMPEG_VERSION}"
-    if [ ! -f ${ffmpeg_base_name}.tar.bz2 ]; then
-        wget http://ffmpeg.org/releases/${ffmpeg_base_name}.tar.bz2 || return 1
-    fi
-
-    if [ -d ${ffmpeg_base_name} ]; then
-        rm -rf ${ffmpeg_base_name}
-    fi
-
-    tar -xf ${ffmpeg_base_name}.tar.bz2 || return 1
-    cd ${ffmpeg_base_name}
-
-    # Patch for decklink SDK 11
-    cp ${base_dir}/ffmpeg/decklink/* libavdevice/
+    cd ${temp_dir}/ffmpeg
 
     ./configure --prefix=$PREFIX \
       --enable-nonfree \
