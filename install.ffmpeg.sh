@@ -181,7 +181,7 @@ function install_bmd {
 
 function install_ndi {
     cd ${temp_dir}
-    ndi_file="InstallNDISDK_v3_Linux.sh"
+    ndi_file="InstallNDISDK_v4_Linux.sh"
     ndi_dir="NDI SDK for Linux"
 
     if [ ! -f $ndi_file ]; then
