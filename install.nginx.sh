@@ -42,10 +42,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.17.2"
+NGINX_VERSION="1.17.5"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.43"
-OPENSSL_VERSION="1.1.1c"
+OPENSSL_VERSION="1.1.1d"
 
 MODULES=(
     "https://github.com/openresty/echo-nginx-module"
@@ -106,7 +106,7 @@ echo ""
 
 LIBS=(
     "http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
-    "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-${PCRE_VERSION}.tar.gz"
+    "https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz"
     "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
 )
 
