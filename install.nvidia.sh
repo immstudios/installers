@@ -42,9 +42,9 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-cuda_version="10.1"
-cuda_build="168"
-driver_version="418.67"
+cuda_version="10.2"
+cuda_build="89"
+driver_version="440.33.01"
 
 
 function install_prerequisites {
@@ -86,7 +86,7 @@ function nvidia_cuda_install {
 
     installer_file="cuda_${cuda_version}.${cuda_build}_${driver_version}_linux.run"
     if [ ! -f ${installer_file} ]; then
-        wget https://developer.nvidia.com/compute/cuda/${cuda_version}/Prod/local_installers/${installer_file} || return 1
+        wget https://developer.download.nvidia.com/compute/cuda/${cuda_version}/Prod/local_installers/${installer_file} || return 1
     fi
     chmod +x ${installer_file}
     ./${installer_file} --silent --driver --toolkit --run-nvidia-xconfig || cat /tmp/cuda_install*
