@@ -42,7 +42,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.17.5"
+NGINX_VERSION="1.17.8"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.43"
 OPENSSL_VERSION="1.1.1d"
