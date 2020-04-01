@@ -42,10 +42,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.17.8"
+NGINX_VERSION="1.17.9"
 ZLIB_VERSION="1.2.11"
-PCRE_VERSION="8.43"
-OPENSSL_VERSION="1.1.1d"
+PCRE_VERSION="8.44"
+OPENSSL_VERSION="1.1.1f"
 
 MODULES=(
     "https://github.com/openresty/echo-nginx-module"
