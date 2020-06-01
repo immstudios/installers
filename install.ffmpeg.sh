@@ -193,7 +193,7 @@ function install_ndi {
         tail -n+$ARCHIVE "$ndi_file" | tar xvz
     fi
 
-    libname=$(find "$ndi_dir/lib/x86_64-linux-gnu/" -type f)
+    libname=$(find "$ndi_dir/lib/$(uname -m)-linux-gnu/" -type f)
     libbase=$(basename "$libname")
 
     cp "$ndi_dir/include/"* /usr/include
