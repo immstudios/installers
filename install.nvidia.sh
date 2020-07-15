@@ -42,10 +42,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-cuda_version="10.2"
-cuda_build="89"
-driver_version="440.33.01"
+cuda_version="11.0.2"
+driver_version="450.51.05"
 
+#http://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers/cuda_11.0.2_450.51.05_linux.run
 
 function install_prerequisites {
     apt install -y \
@@ -84,9 +84,9 @@ function nvidia_cuda_install {
     # Smazeme stare error logy
     rm /tmp/cuda_install* 2> /dev/null
 
-    installer_file="cuda_${cuda_version}.${cuda_build}_${driver_version}_linux.run"
+    installer_file="cuda_${cuda_version}_${driver_version}_linux.run"
     if [ ! -f ${installer_file} ]; then
-        wget https://developer.download.nvidia.com/compute/cuda/${cuda_version}/Prod/local_installers/${installer_file} || return 1
+        wget https://developer.download.nvidia.com/compute/cuda/${cuda_version}/local_installers/${installer_file} || return 1
     fi
     chmod +x ${installer_file}
     ./${installer_file} --silent --driver --toolkit --run-nvidia-xconfig || cat /tmp/cuda_install*
