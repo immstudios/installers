@@ -51,6 +51,7 @@ REPOS=(
     "https://github.com/stoth68000/libklvanc"
     "https://github.com/martastain/bmd-sdk"
     "https://github.com/immstudios/ffmpeg"
+    "https://github.com/immstudios/ndi-headers"
 )
 
 extra_flags=""
@@ -61,7 +62,7 @@ fi
 
 function install_prerequisites {
     # bulid tools
-    apt -y install\
+    apt-get -y install\
         build-essential \
         unzip \
         cmake \
@@ -72,11 +73,11 @@ function install_prerequisites {
         automake \
         pkg-config \
         libxml2-dev \
-	tclsh \
-	|| exit 1
+        tclsh \
+        || exit 1
 
     # network and security
-    apt -y install \
+    apt-get -y install \
         avahi-daemon \
         avahi-discover \
         avahi-utils \
@@ -84,10 +85,10 @@ function install_prerequisites {
         libfftw3-dev \
         ocl-icd-opencl-dev \
         opencl-headers \
-	|| exit 1
+        || exit 1
 
     # text rendering
-    apt -y install \
+    apt-get -y install \
         fontconfig \
         libfontconfig1 \
         libfontconfig1-dev \
@@ -95,10 +96,10 @@ function install_prerequisites {
         libfribidi0 \
         libfreetype6-dev \
         libass-dev \
-	|| exit 1
+        || exit 1
 
     # 3rd party codecs
-    apt -y install \
+    apt-get -y install \
         libx265-dev \
         libmp3lame-dev \
         libtwolame-dev \
@@ -107,7 +108,7 @@ function install_prerequisites {
         libwebp-dev \
         libzvbi-dev \
         librubberband-dev \
-	|| exit 1
+        || exit 1
 }
 
 function download_repos {
@@ -181,33 +182,14 @@ function install_bmd {
 
 function install_ndi {
     cd ${temp_dir}
-    ndi_file="InstallNDISDK_v4_Linux.sh"
-    ndi_dir="NDI SDK for Linux"
 
-    if [ ! -f $ndi_file ]; then
-        wget https://repo.imm.cz/$ndi_file
+    cp ndi-headers/*.h /usr/include
+
+    ndi_file="libndi4_4.5.1-1_amd64.deb"
+    if [! -f $ndi_file ]; then
+        wget https://github.com/Palakis/obs-ndi/releases/download/4.9.1/$ndi_file || return 1
     fi
-
-    if [ ! -d "$ndi_dir" ]; then
-        ARCHIVE=`awk '/^__NDI_ARCHIVE_BEGIN__/ { print NR+1; exit 0; }' "$ndi_file"`
-        tail -n+$ARCHIVE "$ndi_file" | tar xvz
-    fi
-
-    libname=$(find "$ndi_dir/lib/$(uname -m)-linux-gnu/" -type f)
-    libbase=$(basename "$libname")
-
-    cp "$ndi_dir/include/"* /usr/include
-    cp "$libname" /usr/lib
-    links=(
-        /usr/lib/$(echo "$libbase" | cut -d . -f -2)
-        /usr/lib/$(echo "$libbase" | cut -d . -f -3)
-    )
-    for link in ${links[@]}; do
-        if [ -e $link ]; then
-            rm $link
-        fi
-        ln -s /usr/lib/$libbase $link
-    done
+    dpkg -i $ndi_file || return 1
 
     extra_flags="$extra_flags --enable-libndi_newtek"
     return 0
@@ -286,14 +268,14 @@ function install_ffmpeg {
 
 install_prerequisites || error_exit
 download_repos || error_exit
-install_libklvanc || error_exit
-install_libsrt || error_exit
 install_nasm || error_exit
+install_fdk_aac || error_exit
 install_x264 || error_exit
 install_nvcodec || error_exit
 install_bmd || error_exit
 install_ndi || error_exit
-install_fdk_aac || error_exit
+install_libsrt || error_exit
+install_libklvanc || error_exit
 install_ffmpeg || error_exit
 
 finished
