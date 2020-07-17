@@ -186,7 +186,7 @@ function install_ndi {
     cp ndi-headers/*.h /usr/include
 
     ndi_file="libndi4_4.5.1-1_amd64.deb"
-    if [! -f $ndi_file ]; then
+    if [ ! -f $ndi_file ]; then
         wget https://github.com/Palakis/obs-ndi/releases/download/4.9.1/$ndi_file || return 1
     fi
     dpkg -i $ndi_file || return 1
