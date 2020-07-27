@@ -42,6 +42,8 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
+make_threads=8
+
 NASM_VERSION="2.14.02"
 
 REPOS=(
@@ -82,9 +84,6 @@ function install_prerequisites {
         avahi-discover \
         avahi-utils \
         libssl-dev \
-        libfftw3-dev \
-        ocl-icd-opencl-dev \
-        opencl-headers \
         || exit 1
 
     # text rendering
@@ -98,7 +97,7 @@ function install_prerequisites {
         libass-dev \
         || exit 1
 
-    # 3rd party codecs
+    # 3rd party codecs and filters
     apt-get -y install \
         libx265-dev \
         libmp3lame-dev \
@@ -108,6 +107,9 @@ function install_prerequisites {
         libwebp-dev \
         libzvbi-dev \
         librubberband-dev \
+        libfftw3-dev \
+        ocl-icd-opencl-dev \
+        opencl-headers \
         || exit 1
 }
 
@@ -137,7 +139,7 @@ function install_nasm {
     tar -xf ${nasm_name}.tar.gz
     cd ${nasm_name}
     ./configure || return 1
-    make || return 1
+    make -j$make_threads || return 1
     make install || return 1
     return 0
 }
@@ -150,7 +152,7 @@ function install_fdk_aac {
     cd ${temp_dir}/fdk-aac
     autoreconf -fiv || return 1
     ./configure --prefix=$PREFIX || return 1
-    make || return 1
+    make -j$make_threads || return 1
     make install || return 1
     extra_flags="$extra_flags --enable-libfdk-aac"
     return 0
@@ -159,6 +161,7 @@ function install_fdk_aac {
 
 function install_nvcodec {
     HAS_NVIDIA=`hash nvidia-smi 2> /dev/null && echo 1 || echo ""`
+
     if [ $HAS_NVIDIA ] ; then
         cd $temp_dir
         if [ -d nv-codec-headers ]; then
@@ -168,7 +171,8 @@ function install_nvcodec {
         cd nv-codec-headers
         make || return 1
         make install || return 1
-        extra_flags="$extra_flags --enable-nvenc --enable-cuda --enable-cuvid"
+        extra_flags="$extra_flags --enable-nvenc --enable-cuda --enable-cuvid --enable-libnpp --enable-cuda-nvcc"
+        extra_flags="$extra_flags --extra-cflags=-I/usr/local/cuda/include --extra-ldflags=-L/usr/local/cuda/lib64"
     fi
     return 0
 }
@@ -182,15 +186,12 @@ function install_bmd {
 
 function install_ndi {
     cd ${temp_dir}
-
     cp ndi-headers/*.h /usr/include
-
     ndi_file="libndi4_4.5.1-1_amd64.deb"
     if [ ! -f $ndi_file ]; then
         wget https://github.com/Palakis/obs-ndi/releases/download/4.9.1/$ndi_file || return 1
     fi
     dpkg -i $ndi_file || return 1
-
     extra_flags="$extra_flags --enable-libndi_newtek"
     return 0
 }
@@ -198,7 +199,7 @@ function install_ndi {
 function install_x264 {
     cd $temp_dir/x264
     ./configure --enable-shared --bit-depth=all --chroma-format=all || return 1
-    make || return 1
+    make -j$make_threads || return 1
     make install || return 1
     extra_flags="$extra_flags --enable-libx264"
     return 0
@@ -207,7 +208,7 @@ function install_x264 {
 function install_libsrt {
     cd $temp_dir/srt
     ./configure || return 1
-    make || return 1
+    make -j$make_threads || return 1
     make install || return 1
     extra_flags="$extra_flags --enable-libsrt"
     return 0
@@ -217,7 +218,7 @@ function install_libklvanc {
     cd $temp_dir/libklvanc
     ./autogen.sh --build || return 1
     ./configure || return 1
-    make || return 1
+    make -j$make_threads || return 1
     make install || return 1
     extra_flags="$extra_flags --enable-libklvanc"
     return 0
@@ -229,6 +230,13 @@ function install_libklvanc {
 
 function install_ffmpeg {
     cd ${temp_dir}/ffmpeg
+
+    PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
+
+    echo ""
+    echo $extra_flags
+    echo ""
+
 
     ./configure --prefix=$PREFIX \
       --enable-nonfree \
@@ -256,7 +264,7 @@ function install_ffmpeg {
     || return 1
 
     echo "Making ffmpeg"
-    make || return 1
+    make -j$make_threads || return 1
     make install || return 1
     make clean
     ldconfig
