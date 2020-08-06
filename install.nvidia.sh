@@ -79,10 +79,11 @@ function nvidia_uninstall {
 
 
 function nvidia_cuda_install {
-    cd ${temp_dir}
+    cd ~
 
     # Smazeme stare error logy
     rm /tmp/cuda_install* 2> /dev/null
+    rm /var/log/nvidia-installer.log* 2> /dev/null
 
     installer_file="cuda_${cuda_version}_${driver_version}_linux.run"
     if [ ! -f ${installer_file} ]; then
@@ -98,7 +99,9 @@ function nvidia_cuda_install {
     if [ $HAS_NVIDIA ] ; then
         return 0
     else
-        cat /var/log/cuda-install*
+        echo ""
+        cat /var/log/nvidia-installer.log
+	echo ""
         return 1
     fi
 }
