@@ -42,8 +42,8 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-cuda_version="11.0.2"
-driver_version="450.51.05"
+cuda_version="11.2.2"
+driver_version="460.32.03"
 
 #http://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers/cuda_11.0.2_450.51.05_linux.run
 
