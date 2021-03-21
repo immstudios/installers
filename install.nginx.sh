@@ -42,10 +42,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.18.0"
+NGINX_VERSION="1.19.8"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.44"
-OPENSSL_VERSION="1.1.1g"
+OPENSSL_VERSION="1.1.1j"
 
 MODULES=(
     "https://github.com/openresty/echo-nginx-module"
@@ -118,7 +118,8 @@ function install_prerequisites {
         libxml2 \
         libxml2-dev \
         libgeoip-dev \
-        libxslt-dev
+        libxslt-dev \
+	wget
 }
 
 function download_all {
@@ -153,7 +154,7 @@ function download_all {
         module_name=$(basename $module_url)
         if [ -d ${module_name} ]; then
             cd ${module_name}
-#            git pull || return 1
+            git pull || return 1
             cd ..
         else
             git clone ${module_url} || return 1
