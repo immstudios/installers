@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 - 2020 imm studios, z.s.
+# Copyright (c) 2015 - 2019 imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,6 +17,7 @@
 
 base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 temp_dir=/tmp/$(basename "${BASH_SOURCE[0]}")
+num_cpus=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)
 
 function error_exit {
     printf "\n\033[0;31mInstallation failed\033[0m\n"
@@ -45,7 +46,7 @@ fi
 NGINX_VERSION="1.19.8"
 ZLIB_VERSION="1.2.11"
 PCRE_VERSION="8.44"
-OPENSSL_VERSION="1.1.1j"
+OPENSSL_VERSION="1.1.1k"
 
 MODULES=(
     "https://github.com/openresty/echo-nginx-module"
@@ -118,8 +119,7 @@ function install_prerequisites {
         libxml2 \
         libxml2-dev \
         libgeoip-dev \
-        libxslt-dev \
-	wget
+        libxslt-dev
 }
 
 function download_all {
@@ -204,7 +204,7 @@ function build_nginx {
     done
 
     $cmd || return 1
-    make && make install || return 1
+    make -j$num_cpus && make install || return 1
 
     return 0
 }
@@ -222,17 +222,88 @@ function post_install {
 
     if [ ! -d $default_dir ]; then
         mkdir $default_dir
-        cp nginx/http.conf $default_dir/http.conf
-        cp nginx/index.html $default_dir/index.html
+        cat "Go away" > $default_dir/index.html
+        cat <<EOT > $default_dir/http.conf
+server {
+    listen       80;
+    server_name  _;
+    location / {
+        root /var/www/default/;
+        index index.html;
+    }
+}
+EOT
     fi
 
-    cd $base_dir
-    cp nginx/nginx.conf /etc/nginx/nginx.conf || return 1
+    cat <<EOT > /etc/nginx/nginx.conf
+user                        www-data;
+pid                         /run/nginx.pid;
+worker_processes            $num_cpus;
+
+events {
+    worker_connections      1024;
+}
+
+http {
+    include                 mime.types;
+    default_type            application/octet-stream;
+
+    sendfile                on;
+    tcp_nopush              on;
+    tcp_nodelay             on;
+    server_tokens           off;
+    keepalive_timeout       65;
+
+    types_hash_max_size     2048;
+
+    variables_hash_max_size     2048;
+    variables_hash_bucket_size  64;
+
+    gzip                    on;
+    gzip_comp_level         2;
+    gzip_min_length         1000;
+    gzip_proxied            expired no-cache no-store private auth;
+    gzip_types              text/plain application/javascript text/xml text/css image/svg+xml;
+
+    # Logging Settings
+
+    access_log              /var/log/nginx/access.log;
+    error_log               /var/log/nginx/error.log;
+
+    # Includes
+
+    include                 ssl.conf;
+    include                 cache.conf;
+    include                 http.conf;
+    include                 /var/www/*/http.conf;
+} # END HTTP
+
+include                     rtmp.conf;
+EOT
+
     cp $temp_dir/http.conf /etc/nginx/http.conf || return 1
     cp $temp_dir/rtmp.conf /etc/nginx/rtmp.conf || return 1
     touch /etc/nginx/cache.conf || return 1
     touch /etc/nginx/ssl.conf || return 1
-    cp nginx/nginx.service /lib/systemd/system/nginx.service || return 1
+
+    cat <<EOT > /lib/systemd/system/nginx.service
+[Unit]
+Description=The NGINX HTTP and reverse proxy server
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/run/nginx.pid
+ExecStartPre=/usr/sbin/nginx -t -q -g 'daemon on; master_process on;'
+ExecStart=/usr/sbin/nginx -g 'daemon on; master_process on;'
+ExecReload=/usr/sbin/nginx -s reload
+ExecStop=/sbin/start-stop-daemon --stop --retry QUIT/5 --pidfile /run/nginx.conf
+TimeoutStopSec=5
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+EOT
 
     return 0
 }
@@ -242,7 +313,29 @@ function add_security {
     if [ ! -f $dhparam_path ]; then
         openssl dhparam -out $dhparam_path 4096
     fi
-    cp nginx/ssl.conf /etc/nginx/ssl.conf
+    cat <<EOT > /etc/nginx/ssl.conf
+ssl_session_timeout             10m;
+ssl_session_cache               shared:SSL:10m;
+ssl_session_tickets             off;
+
+ssl_dhparam                     /etc/ssl/certs/dhparam.pem;
+
+ssl_protocols                   TLSv1.3 TLSv1.2;
+ssl_prefer_server_ciphers       on;
+ssl_ciphers                     ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384;
+ssl_ecdh_curve                  secp384r1;
+
+ssl_stapling                    on;
+ssl_stapling_verify             on;
+
+resolver                        8.8.4.4 1.1.1.1 valid=300s;
+resolver_timeout                5s;
+
+add_header                      Strict-Transport-Security max-age=15768000;
+add_header                      X-Frame-Options DENY;
+add_header                      X-Content-Type-Options nosniff;
+add_header                      X-XSS-Protection "1; mode=block";
+EOT
 }
 
 function start_nginx {
