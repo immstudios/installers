@@ -224,6 +224,25 @@ function install_libklvanc {
     return 0
 }
 
+function install_openjpeg {
+    cd $temp_dir
+    openjpeg_src_file="v2.4.0.tar.gz"
+    openjpeg_file="openjpeg-2.4.0"
+    if [ ! -f $openjpeg_file.tar.gz ]; then
+        wget https://github.com/uclouvain/openjpeg/archive/refs/tags/v2.4.0.tar.gz -O $openjpeg_file.tar.gz || exit 1
+    fi
+    if [ ! -d $openjpeg_file ]; then
+        tar -xf $openjpeg_file.tar.gz
+    fi
+    cd $openjpeg_file
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make
+    make install
+    extra_flags="$extra_flags --enable-libopenjpeg"
+}
+
 #
 # Install FFmpeg
 #
@@ -284,6 +303,7 @@ install_bmd || error_exit
 install_ndi || error_exit
 install_libsrt || error_exit
 install_libklvanc || error_exit
+install_openjpeg || error_exit
 install_ffmpeg || error_exit
 
 finished

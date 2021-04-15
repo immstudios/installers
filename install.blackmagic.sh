@@ -42,7 +42,7 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-DESKTOP_VIDEO_VERSION="11.6a26"
+DESKTOP_VIDEO_VERSION="12.0a14"
 
 REPO_URL="https://repo.imm.cz"
 DESKTOP_VIDEO_FNAME="desktopvideo_${DESKTOP_VIDEO_VERSION}_amd64.deb"
