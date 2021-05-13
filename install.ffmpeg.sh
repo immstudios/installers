@@ -76,6 +76,7 @@ function install_prerequisites {
         pkg-config \
         libxml2-dev \
         tclsh \
+        wget \
         || exit 1
 
     # network and security
@@ -104,6 +105,7 @@ function install_prerequisites {
         libtwolame-dev \
         libopus-dev \
         libv4l-dev \
+        libvpx-dev \
         libwebp-dev \
         libzvbi-dev \
         librubberband-dev \
@@ -277,6 +279,7 @@ function install_ffmpeg {
     --enable-libv4l2         ` # enable libv4l2/v4l-utils` \
     --enable-openssl         ` # needed for https support if gnutls is not used` \
     --enable-libxml2         ` # enable XML parsing needed for dash demuxing support` \
+    --enable-libvpx          ` # enable VP8 and VP9 de/encoding via libvpx` \
     --enable-librubberband \
     --enable-opencl \
     $extra_flags \
