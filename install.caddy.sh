@@ -1,4 +1,4 @@
-CADDY_VERSION=2.4.3
+CADDY_VERSION=2.4.5
 wget https://github.com/caddyserver/caddy/releases/download/v${CADDY_VERSION}/caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 tar -xf caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 
@@ -38,7 +38,7 @@ After=network-online.target
 User=caddy
 Group=caddy
 Type=exec
-WorkingDirectory=/var/www/
+WorkingDirectory=/var/services/
 
 ExecStart=/usr/bin/caddy run -config /etc/caddy/Caddyfile
 ExecReload=/usr/bin/caddy reload -config /etc/caddy/Caddyfile
