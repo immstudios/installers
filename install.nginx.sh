@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 - 2019 imm studios, z.s.
+# Copyright (c) 2015 - 2021 imm studios, z.s.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,10 +43,10 @@ fi
 ## COMMON UTILS
 ##############################################################################
 
-NGINX_VERSION="1.19.8"
+NGINX_VERSION="1.21.5"
 ZLIB_VERSION="1.2.11"
-PCRE_VERSION="8.44"
-OPENSSL_VERSION="1.1.1k"
+PCRE_VERSION="10.39"
+OPENSSL_VERSION="1.1.1m"
 
 MODULES=(
     "https://github.com/openresty/echo-nginx-module"
@@ -104,10 +104,9 @@ for m in ${MODULES[@]}; do
 done
 echo ""
 
-
 LIBS=(
     "http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
-    "https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz"
+    "https://github.com/PhilipHazel/pcre2/releases/download/pcre2-${PCRE_VERSION}/pcre2-${PCRE_VERSION}.tar.gz"
     "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
 )
 
@@ -178,7 +177,7 @@ function build_nginx {
         --group=www-data"
 
     cmd="$cmd \
-        --with-pcre=$temp_dir/pcre-$PCRE_VERSION \
+        --with-pcre=$temp_dir/pcre2-$PCRE_VERSION \
         --with-zlib=$temp_dir/zlib-$ZLIB_VERSION \
         --with-openssl=$temp_dir/openssl-$OPENSSL_VERSION \
         --with-ipv6 \
@@ -222,7 +221,7 @@ function post_install {
 
     if [ ! -d $default_dir ]; then
         mkdir $default_dir
-        cat "Go away" > $default_dir/index.html
+        echo "Go away" > $default_dir/index.html
         cat <<EOT > $default_dir/http.conf
 server {
     listen       80;
