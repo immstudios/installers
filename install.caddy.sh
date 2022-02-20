@@ -1,4 +1,4 @@
-CADDY_VERSION=2.4.5
+CADDY_VERSION=2.4.6
 wget https://github.com/caddyserver/caddy/releases/download/v${CADDY_VERSION}/caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 tar -xf caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 
