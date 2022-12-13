@@ -1,4 +1,4 @@
-CADDY_VERSION=2.4.6
+CADDY_VERSION=2.6.2
 wget https://github.com/caddyserver/caddy/releases/download/v${CADDY_VERSION}/caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 tar -xf caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 
@@ -40,8 +40,8 @@ Group=caddy
 Type=exec
 WorkingDirectory=/var/services/
 
-ExecStart=/usr/bin/caddy run -config /etc/caddy/Caddyfile
-ExecReload=/usr/bin/caddy reload -config /etc/caddy/Caddyfile
+ExecStart=/usr/bin/caddy run --config /etc/caddy/Caddyfile
+ExecReload=/usr/bin/caddy reload --config /etc/caddy/Caddyfile
 ExecStop=/usr/bin/caddy stop
 
 LimitNOFILE=1048576
@@ -88,7 +88,5 @@ cat <<EOT > /etc/caddy/Caddyfile
 import /var/services/*/Caddyfile
 EOT
 
-
-#/usr/bin/caddy run -config /etc/caddy/Caddyfile
 
 systemctl start caddy
