@@ -1,4 +1,6 @@
-CADDY_VERSION=2.6.2
+#!/usr/bin/env bash
+
+CADDY_VERSION=2.7.5
 wget https://github.com/caddyserver/caddy/releases/download/v${CADDY_VERSION}/caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 tar -xf caddy_${CADDY_VERSION}_linux_amd64.tar.gz
 
