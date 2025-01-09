@@ -91,4 +91,6 @@ import /var/services/*/Caddyfile
 EOT
 
 
+systemctl enable caddy
 systemctl start caddy
+
